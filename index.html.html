@@ -1,0 +1,1819 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Trainer Pro</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f1117; color: #e0e0e0; min-height: 100vh; display: flex; }
+
+.sidebar {
+  width: 220px; min-height: 100vh; background: #16181f;
+  border-right: 1px solid #2a2d3a; display: flex; flex-direction: column;
+  position: fixed; left: 0; top: 0; bottom: 0; z-index: 100;
+}
+.sidebar-logo { padding: 20px 18px 14px; font-size: 16px; font-weight: 800; color: #fff; border-bottom: 1px solid #2a2d3a; display: flex; align-items: center; gap: 8px; }
+.sidebar-logo span { color: #6c63ff; }
+.nav-section { padding: 10px 0; }
+.nav-label { font-size: 9px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 1.5px; padding: 6px 18px 4px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 18px; font-size: 12.5px; color: #9a9ab0; cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent; }
+.nav-item:hover { background: #1e2030; color: #fff; }
+.nav-item.active { background: #1e2030; color: #6c63ff; border-left-color: #6c63ff; }
+.nav-item .ni { font-size: 14px; width: 18px; text-align: center; }
+.sidebar-footer { margin-top: auto; padding: 14px 18px; border-top: 1px solid #2a2d3a; }
+.user-info { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #6c63ff, #a855f7); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.user-name { font-size: 12px; font-weight: 700; color: #fff; }
+.user-role { font-size: 10px; color: #666; }
+
+.main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+.topbar { background: #16181f; border-bottom: 1px solid #2a2d3a; padding: 12px 28px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 50; }
+.topbar-title { font-size: 16px; font-weight: 800; color: #fff; flex: 1; }
+.topbar-search { display: flex; align-items: center; gap: 8px; background: #1e2030; border: 1px solid #2a2d3a; border-radius: 20px; padding: 7px 14px; width: 220px; }
+.topbar-search input { background: transparent; border: none; outline: none; color: #ccc; font-size: 12px; width: 100%; }
+.topbar-search input::placeholder { color: #555; }
+.btn-primary { background: #6c63ff; border: none; color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary:hover { background: #5a52e0; }
+.btn-secondary { background: #1e2030; border: 1px solid #2a2d3a; color: #ccc; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.btn-secondary:hover { background: #2a2d3a; color: #fff; }
+.btn-danger { background: #c0392b; border: none; color: #fff; padding: 7px 12px; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.btn-danger:hover { background: #a93226; }
+
+.page { display: none; padding: 24px 28px; }
+.page.active { display: block; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: #16181f; border: 1px solid #2a2d3a; border-radius: 12px; padding: 18px 20px; }
+.stat-label { font-size: 10.5px; color: #666; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.stat-value { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.stat-sub { font-size: 11px; color: #555; }
+.stat-card.purple .stat-value { color: #a78bfa; }
+.stat-card.green .stat-value { color: #34d399; }
+.stat-card.blue .stat-value { color: #60a5fa; }
+.stat-card.orange .stat-value { color: #fb923c; }
+
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-title { font-size: 14px; font-weight: 800; color: #fff; }
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.filter-chip { padding: 5px 13px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid #2a2d3a; background: #1e2030; color: #9a9ab0; transition: all 0.15s; }
+.filter-chip:hover, .filter-chip.active { border-color: #6c63ff; background: #2a2060; color: #a78bfa; }
+
+.scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.scenario-card { background: #16181f; border: 1px solid #2a2d3a; border-radius: 12px; padding: 18px; transition: all 0.2s; position: relative; overflow: hidden; }
+.scenario-card:hover { border-color: #6c63ff; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,99,255,0.15); }
+.sc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.sc-icon { font-size: 22px; }
+.sc-priority { font-size: 9.5px; font-weight: 700; padding: 3px 9px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.sc-priority.high { background: #3d1515; color: #f87171; border: 1px solid #7f1d1d; }
+.sc-priority.medium { background: #2d2a10; color: #fbbf24; border: 1px solid #78350f; }
+.sc-priority.low { background: #0d2d1a; color: #34d399; border: 1px solid #065f46; }
+.sc-title { font-size: 13.5px; font-weight: 800; color: #fff; margin-bottom: 5px; }
+.sc-desc { font-size: 11.5px; color: #777; line-height: 1.5; margin-bottom: 10px; }
+.sc-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+.sc-tag { font-size: 9.5px; font-weight: 600; padding: 2px 8px; border-radius: 8px; background: #1e2030; border: 1px solid #2a2d3a; color: #9a9ab0; }
+.sc-meta { display: flex; gap: 12px; font-size: 10.5px; color: #555; margin-bottom: 12px; }
+.sc-actions { display: flex; gap: 6px; }
+.sc-btn { flex: 1; padding: 6px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; transition: all 0.15s; border: 1px solid; }
+.sc-btn.edit { background: #1e2030; border-color: #2a2d3a; color: #9a9ab0; }
+.sc-btn.edit:hover { background: #2a2d3a; color: #fff; }
+.sc-btn.view { background: #2a2060; border-color: #6c63ff; color: #a78bfa; }
+.sc-btn.view:hover { background: #6c63ff; color: #fff; }
+
+.agents-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.agent-card { background: #16181f; border: 1px solid #2a2d3a; border-radius: 12px; padding: 18px; }
+.agent-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.agent-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.agent-name { font-size: 13px; font-weight: 800; color: #fff; }
+.agent-role { font-size: 10.5px; color: #666; margin-top: 2px; }
+.agent-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.agent-stat { background: #1e2030; border-radius: 8px; padding: 8px 10px; }
+.agent-stat-label { font-size: 9px; color: #555; font-weight: 700; text-transform: uppercase; }
+.agent-stat-value { font-size: 16px; font-weight: 800; color: #fff; margin-top: 2px; }
+.agent-stat-value.green { color: #34d399; }
+.agent-stat-value.blue { color: #60a5fa; }
+.agent-stat-value.purple { color: #a78bfa; }
+.progress-bar { height: 4px; background: #2a2d3a; border-radius: 2px; overflow: hidden; margin-top: 4px; }
+.progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #6c63ff, #a855f7); }
+.agent-actions { display: flex; gap: 6px; margin-top: 12px; }
+
+.analytics-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+.analytics-card { background: #16181f; border: 1px solid #2a2d3a; border-radius: 12px; padding: 18px; }
+.analytics-card h3 { font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 14px; }
+
+.leaderboard-list { display: flex; flex-direction: column; gap: 8px; }
+.lb-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: #1e2030; border-radius: 8px; }
+.lb-rank { font-size: 11px; font-weight: 800; color: #555; width: 20px; text-align: center; }
+.lb-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.lb-name { flex: 1; font-size: 12px; font-weight: 700; color: #fff; }
+.lb-score { font-size: 12px; font-weight: 800; color: #a78bfa; }
+
+.assessment-table { width: 100%; border-collapse: collapse; }
+.assessment-table th { text-align: left; font-size: 10px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.8px; padding: 8px 12px; border-bottom: 1px solid #2a2d3a; }
+.assessment-table td { padding: 10px 12px; border-bottom: 1px solid #1e2030; font-size: 12px; color: #ccc; vertical-align: middle; }
+.assessment-table tr:hover td { background: #1e2030; }
+.score-badge { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 10.5px; font-weight: 700; }
+.score-badge.excellent { background: #0d2d1a; color: #34d399; border: 1px solid #065f46; }
+.score-badge.good { background: #1a2d0d; color: #86efac; border: 1px solid #166534; }
+.score-badge.average { background: #2d2a10; color: #fbbf24; border: 1px solid #78350f; }
+.score-badge.poor { background: #3d1515; color: #f87171; border: 1px solid #7f1d1d; }
+.status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
+.status-dot.completed { background: #34d399; }
+.status-dot.in-progress { background: #fbbf24; }
+.status-dot.pending { background: #555; }
+
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal { background: #16181f; border: 1px solid #2a2d3a; border-radius: 14px; width: 100%; max-width: 680px; max-height: 88vh; overflow-y: auto; }
+.modal-header { padding: 18px 22px; border-bottom: 1px solid #2a2d3a; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: #16181f; z-index: 1; }
+.modal-title { font-size: 15px; font-weight: 800; color: #fff; }
+.modal-close { background: #1e2030; border: 1px solid #2a2d3a; color: #9a9ab0; width: 30px; height: 30px; border-radius: 7px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { background: #2a2d3a; color: #fff; }
+.modal-body { padding: 20px 22px; }
+.modal-footer { padding: 14px 22px; border-top: 1px solid #2a2d3a; display: flex; justify-content: flex-end; gap: 8px; position: sticky; bottom: 0; background: #16181f; }
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 11px; font-weight: 700; color: #9a9ab0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block; }
+.form-input, .form-select, .form-textarea { width: 100%; background: #1e2030; border: 1px solid #2a2d3a; border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 12.5px; outline: none; font-family: inherit; transition: border-color 0.15s; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #6c63ff; }
+.form-textarea { min-height: 80px; resize: vertical; }
+.form-select option { background: #1e2030; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.sv-overlay { display: none; position: fixed; inset: 0; background: #0f1117; z-index: 998; overflow-y: auto; }
+.sv-overlay.open { display: block; }
+.sv-topbar { background: #16181f; border-bottom: 1px solid #2a2d3a; padding: 14px 28px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 10; }
+.sv-back { background: #1e2030; border: 1px solid #2a2d3a; color: #9a9ab0; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700; }
+.sv-back:hover { background: #2a2d3a; color: #fff; }
+.sv-title-bar { flex: 1; }
+.sv-scenario-title { font-size: 16px; font-weight: 800; color: #fff; }
+.sv-scenario-sub { font-size: 11px; color: #666; margin-top: 2px; }
+.sv-content-wrap { padding: 24px 28px; max-width: 960px; margin: 0 auto; }
+.sv-profile { background: linear-gradient(135deg, #1e1a40, #2a1a40); border: 1px solid #3a2d6a; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px; }
+.sv-profile-avatar { width: 48px; height: 48px; background: rgba(108,99,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.sv-profile-name { font-size: 15px; font-weight: 800; color: #fff; }
+.sv-profile-sub { font-size: 11px; color: #9a9ab0; margin-top: 2px; }
+.sv-profile-tags { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+.sv-profile-tag { background: rgba(108,99,255,0.2); border: 1px solid rgba(108,99,255,0.4); padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; color: #a78bfa; }
+.sv-orderbar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; background: #16181f; border: 1px solid #2a2d3a; border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+.sv-ob-item { padding: 10px 14px; border-right: 1px solid #2a2d3a; }
+.sv-ob-item:last-child { border-right: none; }
+.sv-ob-label { font-size: 9px; color: #555; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.sv-ob-value { font-size: 11.5px; font-weight: 700; color: #fff; margin-top: 3px; }
+.sv-ob-value.red { color: #f87171; }
+.sv-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.sv-tab { padding: 7px 14px; border: 1px solid #2a2d3a; background: #16181f; border-radius: 20px; font-size: 11.5px; font-weight: 700; cursor: pointer; color: #666; transition: all 0.15s; }
+.sv-tab:hover, .sv-tab.active { border-color: #6c63ff; background: #2a2060; color: #a78bfa; }
+.sv-section { background: #16181f; border: 1px solid #2a2d3a; border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+.sv-section-header { padding: 10px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; border-bottom: 1px solid #2a2d3a; }
+.sv-section-body { padding: 14px 16px; font-size: 12.5px; line-height: 1.65; color: #ccc; }
+.sv-section.desc .sv-section-header { background: #1a2040; color: #60a5fa; }
+.sv-section.bg .sv-section-header { background: #1a1040; color: #c084fc; }
+.sv-section.issue .sv-section-header { background: #2a1a10; color: #fb923c; }
+.sv-section.behavior .sv-section-header { background: #0d2010; color: #34d399; }
+.sv-section.sat .sv-section-header { background: #0d1a20; color: #38bdf8; }
+.sv-section.res .sv-section-header { background: #0d2010; color: #34d399; }
+.sv-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.sv-two-col .sv-section { margin-bottom: 0; }
+.blist { list-style: none; padding: 0; }
+.blist li { padding: 3px 0 3px 18px; position: relative; font-size: 12px; color: #aaa; line-height: 1.5; }
+.blist li::before { content: "•"; position: absolute; left: 5px; color: #555; }
+.blist.check li::before { content: "✓"; color: #34d399; font-weight: bold; }
+.blist.cross li::before { content: "✗"; color: #f87171; font-weight: bold; }
+.sat-split { display: grid; grid-template-columns: 1fr 1fr; }
+.sat-col { padding: 12px 16px; }
+.sat-col:first-child { border-right: 1px solid #2a2d3a; }
+.sat-col-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.sat-col-title.green { color: #34d399; }
+.sat-col-title.red { color: #f87171; }
+.res-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.res-pill { background: #1e2040; border: 1px solid #3a3d6a; color: #a78bfa; padding: 4px 11px; border-radius: 13px; font-size: 11px; font-weight: 600; }
+.urgency-box { background: #2a2010; border: 1px solid #78350f; border-radius: 7px; padding: 9px 13px; font-size: 11.5px; color: #fbbf24; margin-top: 10px; }
+.info-box { background: #0d1a2a; border: 1px solid #1e3a5a; border-radius: 7px; padding: 9px 13px; font-size: 11.5px; color: #60a5fa; margin-top: 10px; }
+.res-option { border: 1px solid #2a2d3a; border-radius: 8px; padding: 11px 14px; margin-bottom: 9px; background: #1e2030; }
+.res-option:last-child { margin-bottom: 0; }
+.res-option-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.res-option-desc { font-size: 11.5px; color: #777; line-height: 1.5; }
+
+.empty-state { text-align: center; padding: 60px 20px; color: #555; }
+.empty-state .es-icon { font-size: 48px; margin-bottom: 14px; }
+.empty-state h3 { font-size: 16px; color: #777; margin-bottom: 8px; }
+.empty-state p { font-size: 12.5px; }
+
+.toast { position: fixed; bottom: 24px; right: 24px; border-radius: 10px; padding: 12px 18px; font-size: 12.5px; color: #fff; display: none; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.toast.show { display: flex; align-items: center; gap: 8px; }
+.toast.success { border: 1px solid #065f46; background: #0d2d1a; color: #34d399; }
+.toast.error { border: 1px solid #7f1d1d; background: #3d1515; color: #f87171; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #16181f; }
+::-webkit-scrollbar-thumb { background: #2a2d3a; border-radius: 3px; }
+
+@media (max-width: 1100px) { .scenario-grid, .agents-grid { grid-template-columns: repeat(2, 1fr); } .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .scenario-grid, .agents-grid { grid-template-columns: 1fr; } .analytics-grid { grid-template-columns: 1fr; } }
+</style>
+
+    <script>
+      
+      const files = {
+        
+      }
+    
+
+
+      window.fs = {}
+      window.fs.readFile = (fileName) => {
+        // return array buffer
+        return new Promise((resolve) => {
+          const content = files[fileName]
+          const decoded = atob(content)
+          const arr = new Uint8Array(decoded.length)
+          for (let i = 0; i < decoded.length; i++) {
+            arr[i] = decoded.charCodeAt(i)
+          }
+          resolve(arr)
+        })
+      }
+
+      // stub out window.user.get, window.db.get and window.db.set so that it works when you download the html doc
+      window.db = {}
+      window.db.get = (key) => {
+        // use localStorage to store the artifact
+        const value = localStorage.getItem(key)
+        if (value) {
+          return JSON.parse(value)
+        }
+
+        return null
+      }
+
+      window.db.set = (key, value) => {
+        // use localStorage to store the artifact
+        localStorage.setItem(key, JSON.stringify(value))
+      }
+
+      window.user = {}
+      window.user.get = () => {
+        return {
+          userId: "user-id-placeholder",
+          email: "placeholder@test.com"
+        }
+      }
+
+    </script>
+    </head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">🎓 <span>Agent</span>Trainer</div>
+  <div class="nav-section">
+    <div class="nav-label">Main</div>
+    <div class="nav-item active" onclick="showPage('overview', this)"><span class="ni">📊</span> Overview</div>
+    <div class="nav-item" onclick="showPage('scenarios', this)"><span class="ni">📋</span> Scenarios</div>
+    <div class="nav-item" onclick="showPage('agents', this)"><span class="ni">👥</span> Agents</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Insights</div>
+    <div class="nav-item" onclick="showPage('analytics', this)"><span class="ni">📈</span> Analytics</div>
+    <div class="nav-item" onclick="showPage('assessments', this)"><span class="ni">✅</span> Assessments</div>
+    <div class="nav-item" onclick="showPage('leaderboard', this)"><span class="ni">🏆</span> Leaderboard</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">T</div>
+      <div>
+        <div class="user-name">Trainer</div>
+        <div class="user-role">Admin</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">Overview</div>
+    <div class="topbar-search">
+      <span>🔍</span>
+      <input type="text" id="globalSearch" placeholder="Search scenarios..." oninput="handleSearch(this.value)">
+    </div>
+    <button class="btn-primary" onclick="showAddModal()">+ Add New</button>
+  </div>
+
+  <!-- OVERVIEW PAGE -->
+  <div class="page active" id="page-overview">
+    <div class="stats-grid">
+      <div class="stat-card purple"><div class="stat-label">Total Scenarios</div><div class="stat-value" id="stat-scenarios">0</div><div class="stat-sub">Training scenarios available</div></div>
+      <div class="stat-card blue"><div class="stat-label">Total Agents</div><div class="stat-value" id="stat-agents">0</div><div class="stat-sub">Registered agents</div></div>
+      <div class="stat-card green"><div class="stat-label">Assessments Done</div><div class="stat-value" id="stat-assessments">0</div><div class="stat-sub">Completed assessments</div></div>
+      <div class="stat-card orange"><div class="stat-label">Avg. Score</div><div class="stat-value" id="stat-avg">—</div><div class="stat-sub">Average assessment score</div></div>
+    </div>
+    <div class="analytics-grid">
+      <div class="analytics-card">
+        <h3>📊 Assessment Scores by Scenario</h3>
+        <div id="overviewChart" style="display:flex;align-items:flex-end;gap:6px;height:160px;padding:10px 0 20px;">
+          <div style="color:#555;font-size:12px;text-align:center;width:100%;">No assessment data yet</div>
+        </div>
+      </div>
+      <div class="analytics-card">
+        <h3>🏆 Top Performers</h3>
+        <div class="leaderboard-list" id="overviewLeaderboard">
+          <div style="color:#555;font-size:12px;text-align:center;padding:20px;">No agents yet</div>
+        </div>
+      </div>
+    </div>
+    <div class="analytics-card">
+      <h3 style="margin-bottom:14px;">📋 Recent Assessments</h3>
+      <table class="assessment-table">
+        <thead><tr><th>Agent</th><th>Scenario</th><th>Score</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="overviewAssessmentBody"><tr><td colspan="5" style="text-align:center;color:#555;padding:20px;">No assessments recorded yet</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SCENARIOS PAGE -->
+  <div class="page" id="page-scenarios">
+    <div class="section-header">
+      <div class="section-title">Scenario Library</div>
+      <button class="btn-primary" onclick="openModal('scenario')">+ Add Scenario</button>
+    </div>
+    <div class="filter-row" id="scenarioFilters">
+      <button class="filter-chip active" onclick="filterScenarios('all', this)">All</button>
+      <button class="filter-chip" onclick="filterScenarios('Fulfillment Error', this)">Fulfillment Error</button>
+      <button class="filter-chip" onclick="filterScenarios('Delivery Issue', this)">Delivery Issue</button>
+      <button class="filter-chip" onclick="filterScenarios('Quality Issue', this)">Quality Issue</button>
+      <button class="filter-chip" onclick="filterScenarios('Payment', this)">Payment</button>
+      <button class="filter-chip" onclick="filterScenarios('Policy Issue', this)">Policy Issue</button>
+      <button class="filter-chip" onclick="filterScenarios('Tracking Issue', this)">Tracking Issue</button>
+    </div>
+    <div class="scenario-grid" id="scenarioGrid">
+      <div class="empty-state" style="grid-column:1/-1"><div class="es-icon">📋</div><h3>Loading scenarios...</h3></div>
+    </div>
+  </div>
+
+  <!-- AGENTS PAGE -->
+  <div class="page" id="page-agents">
+    <div class="section-header">
+      <div class="section-title">Agent Management</div>
+      <button class="btn-primary" onclick="openModal('agent')">+ Add Agent</button>
+    </div>
+    <div class="agents-grid" id="agentsGrid">
+      <div class="empty-state" style="grid-column:1/-1"><div class="es-icon">👥</div><h3>No agents yet</h3><p>Click "Add Agent" to register your first agent.</p></div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS PAGE -->
+  <div class="page" id="page-analytics">
+    <div class="section-header"><div class="section-title">Training Analytics</div></div>
+    <div class="stats-grid" style="margin-bottom:20px;">
+      <div class="stat-card purple"><div class="stat-label">Total Assessments</div><div class="stat-value" id="ana-total">0</div></div>
+      <div class="stat-card green"><div class="stat-label">Completed</div><div class="stat-value" id="ana-completed">0</div></div>
+      <div class="stat-card blue"><div class="stat-label">Avg Score</div><div class="stat-value" id="ana-avg">—</div></div>
+      <div class="stat-card orange"><div class="stat-label">Pass Rate (≥70%)</div><div class="stat-value" id="ana-pass">—</div></div>
+    </div>
+    <div class="analytics-grid">
+      <div class="analytics-card">
+        <h3>📊 Score Distribution</h3>
+        <div id="scoreChart" style="padding:10px 0;"><div style="color:#555;font-size:12px;text-align:center;padding:40px;">No data yet</div></div>
+      </div>
+      <div class="analytics-card">
+        <h3>📋 Scenario Performance</h3>
+        <div id="scenarioPerf" style="display:flex;flex-direction:column;gap:10px;"><div style="color:#555;font-size:12px;text-align:center;padding:20px;">No data yet</div></div>
+      </div>
+    </div>
+    <div class="analytics-card" style="margin-top:16px;">
+      <h3>👥 Agent Performance Summary</h3>
+      <table class="assessment-table" style="margin-top:10px;">
+        <thead><tr><th>Agent</th><th>Assessments</th><th>Avg Score</th><th>Best</th><th>Worst</th><th>Pass Rate</th></tr></thead>
+        <tbody id="agentPerfBody"><tr><td colspan="6" style="text-align:center;color:#555;padding:20px;">No data yet</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ASSESSMENTS PAGE -->
+  <div class="page" id="page-assessments">
+    <div class="section-header">
+      <div class="section-title">Assessment Tracker</div>
+      <button class="btn-primary" onclick="openModal('assessment')">+ Log Assessment</button>
+    </div>
+    <div class="analytics-card">
+      <div class="filter-row" style="margin-bottom:14px;">
+        <select class="form-select" style="width:auto;padding:6px 12px;" id="assessFilterAgent" onchange="renderAssessments()"><option value="all">All Agents</option></select>
+        <select class="form-select" style="width:auto;padding:6px 12px;" id="assessFilterScenario" onchange="renderAssessments()"><option value="all">All Scenarios</option></select>
+        <select class="form-select" style="width:auto;padding:6px 12px;" id="assessFilterStatus" onchange="renderAssessments()">
+          <option value="all">All Statuses</option>
+          <option value="Completed">Completed</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Pending">Pending</option>
+        </select>
+      </div>
+      <table class="assessment-table">
+        <thead><tr><th>Agent</th><th>Scenario</th><th>Score</th><th>Status</th><th>Notes</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody id="assessmentBody"><tr><td colspan="7" style="text-align:center;color:#555;padding:20px;">No assessments yet.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD PAGE -->
+  <div class="page" id="page-leaderboard">
+    <div class="section-header"><div class="section-title">🏆 Leaderboard</div></div>
+    <div class="analytics-card">
+      <table class="assessment-table">
+        <thead><tr><th>Rank</th><th>Agent</th><th>Assessments</th><th>Avg Score</th><th>Best Score</th><th>Pass Rate</th></tr></thead>
+        <tbody id="leaderboardBody"><tr><td colspan="6" style="text-align:center;color:#555;padding:20px;">No data yet</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="mainModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add New</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCENARIO VIEW OVERLAY -->
+<div class="sv-overlay" id="svOverlay">
+  <div class="sv-topbar">
+    <button class="sv-back" onclick="closeSvOverlay()">← Back</button>
+    <div class="sv-title-bar">
+      <div class="sv-scenario-title" id="svTitle"></div>
+      <div class="sv-scenario-sub" id="svSub"></div>
+    </div>
+    <div style="background:#e63946;color:#fff;padding:5px 14px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1px;">CONFIDENTIAL</div>
+  </div>
+  <div class="sv-content-wrap" id="svContentWrap"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+let state = {
+  scenarios: [],
+  agents: [],
+  assessments: [],
+  currentPage: 'overview',
+  scenarioFilter: 'all',
+  searchQuery: '',
+  currentModal: null,
+  editingId: null
+};
+
+// ===== DEFAULT SCENARIOS =====
+const DEFAULT_SCENARIOS = [
+  {
+    id: 'wrong-item', icon: '❌', title: 'Wrong Item', category: 'Fulfillment Error',
+    priority: 'high', difficulty: 'Medium', duration: '15 min',
+    desc: 'Received item is inconsistent with the ordered SKU — different style, color, or size.',
+    tags: ['Fulfillment', 'Exchange', 'Urgency'],
+    avatar: '👟', customerName: 'Amanda, 28',
+    customerSub: 'Avid runner · First-time buyer · Order placed: June 2, 2026',
+    customerTags: ['Detail-oriented', 'Time-sensitive', 'Firm but fair'],
+    orderbar: [
+      { label: 'Order Date', value: 'June 2, 2026' },
+      { label: 'Item Ordered', value: 'Black Leather Running Shoes – Size 9' },
+      { label: 'SKU', value: 'RN-BLK-9' },
+      { label: 'Item Received', value: 'White Canvas Sneakers – Size 7', red: true },
+      { label: 'Order Value', value: '$87.50' },
+      { label: 'Contact Date', value: 'June 7, 2026' }
+    ],
+    description: 'Amanda, a 28-year-old customer, ordered a pair of <strong>black leather running shoes in size 9</strong> on June 2, 2026, for <strong>$87.50</strong>. She received <strong>white canvas sneakers in size 7</strong> instead.',
+    background: 'Amanda is a <strong>28-year-old runner</strong> who ordered specific shoes for an upcoming marathon on <strong>June 20</strong>. She is detail-oriented and trusts that companies will send what customers order.',
+    issue: 'You ordered <strong>black leather running shoes in size 9</strong> for $87.50. When you opened the package, you found <strong>white canvas sneakers in size 7</strong> — completely different.',
+    issuePills: ['🔄 Expedited Replacement', '💰 Full Refund ($87.50)', '🎁 Compensation'],
+    urgency: '⏰ <strong>Urgency Note:</strong> Amanda has a marathon on June 20. Any resolution involving a replacement must account for this deadline.',
+    behavior: ['Express disappointment and frustration that the wrong item was sent', 'Provide proof (order confirmation showing size 9 black leather)', 'Emphasize the urgency due to upcoming marathon on June 20', 'Firm in tone — this is a clear fulfillment error'],
+    satisfied: ['Company immediately acknowledges the wrong item was shipped', 'Offered expedited replacement with correct shoes', 'Given a specific delivery date accommodating June 20 deadline', 'Provided compensation for the inconvenience'],
+    frustrated: ['Company questions which item was actually ordered', 'No urgent/expedited replacement option offered', 'No compensation offered for the shipping error'],
+    resolution: [
+      { title: 'Option 1 — Expedited Replacement', desc: 'Ship correct item (Black Leather Running Shoes, Size 9, SKU: RN-BLK-9) with priority/expedited shipping. Issue return label for wrong item.' },
+      { title: 'Option 2 — Full Refund ($87.50)', desc: 'Process full refund of $87.50 to original payment method. Refund timeline: 5–14 business days. Issue return label.' },
+      { title: 'Option 3 — Compensation', desc: 'Offer goodwill gesture (discount voucher or partial refund) for the inconvenience caused by the fulfillment error.' }
+    ], builtIn: true
+  },
+  {
+    id: 'delayed-package', icon: '⏰', title: 'Delayed Package', category: 'Delivery Issue',
+    priority: 'medium', difficulty: 'Easy', duration: '10 min',
+    desc: 'Package is overdue beyond the expected delivery date with no tracking updates.',
+    tags: ['Delivery', 'Tracking', 'Compensation'],
+    avatar: '👴', customerName: 'Elliott, 60',
+    customerSub: 'Generally pleasant · Becomes frustrated with delays · Values efficiency',
+    customerTags: ['Impatient', 'Skeptical', 'Demands action'],
+    orderbar: [
+      { label: 'Order Date', value: 'April 27, 2026' },
+      { label: 'Expected Delivery', value: 'April 30, 2026' },
+      { label: 'Current Date', value: 'May 9, 2026' },
+      { label: 'Status', value: '3 Days Overdue ❌', red: true },
+      { label: 'Tracking', value: 'No Updates' },
+      { label: 'Communication', value: 'None Received' }
+    ],
+    description: 'Elliott, a 60-year-old customer, placed an order on <strong>April 27, 2026</strong>. The package was expected by <strong>April 30, 2026</strong>, but as of <strong>May 9, 2026</strong>, it has not been delivered — making it <strong>3 days overdue</strong>.',
+    background: 'Elliott is a <strong>60-year-old professional</strong> who values efficiency and requires clear, brief answers. He becomes frustrated when faced with delays.',
+    issue: 'Your order remains <strong>3 days behind its expected delivery date</strong>. The app provides no tracking progress, and you have received no communications.',
+    issuePills: ['💳 Credit Compensation', '💰 Complete Refund', '🚀 Expedited Reshipment'],
+    urgency: null,
+    behavior: ['Show impatience with explanations', 'Insist on immediate solutions', 'Skeptical of promises or timelines', 'Demand refunds, replacements, or discounts'],
+    satisfied: ['Receive a prompt, reassuring response', 'Given a clear timeline for delivery', 'Offered compensation for the delay'],
+    frustrated: ['Concerns not addressed clearly', 'No clear timeline received', 'Given vague promises without action'],
+    resolution: [
+      { title: 'Option 1 — Credit Compensation', desc: 'Offer store credit or discount as compensation for the delay and inconvenience caused.' },
+      { title: 'Option 2 — Complete Refund', desc: 'Process a full refund to the original payment method. Timeline: 5–14 business days.' },
+      { title: 'Option 3 — Expedited Reshipment', desc: 'Cancel the delayed order and reship the item with expedited/priority delivery.' }
+    ], builtIn: true
+  },
+  {
+    id: 'delivery-failure', icon: '🚚', title: 'Delivery Failure', category: 'Delivery Issue',
+    priority: 'high', difficulty: 'Hard', duration: '20 min',
+    desc: "Failed delivery attempt with a false claim by the courier on a Sunday/holiday.",
+    tags: ['Delivery', 'Courier', 'Escalation'],
+    avatar: '🧑', customerName: 'Colombian Customer',
+    customerSub: 'Assertive · Detail-oriented · Escalation-ready · Location: Colombia',
+    customerTags: ['Assertive', 'Evidence-based', 'Escalation-ready'],
+    orderbar: [
+      { label: 'Claimed Delivery', value: 'May 10, 2026 (Sunday)', red: true },
+      { label: 'Day Type', value: "Mother's Day / Holiday", red: true },
+      { label: 'Customer Present', value: 'Yes (+ Sister)' },
+      { label: 'Courier Phone', value: 'Out of Service ❌', red: true },
+      { label: 'Status', value: 'Package Undelivered' },
+      { label: 'Pattern', value: 'Previous delays noted' }
+    ],
+    description: "The courier claimed an attempted delivery on <strong>May 10, 2026 (Sunday / Mother's Day in Colombia)</strong>, which the user states is impossible as couriers do not operate on Sundays and holidays in Colombia.",
+    background: "The customer is an <strong>assertive individual</strong> who doesn't hesitate to correct false information. Both they and their sister were present at the address.",
+    issue: 'Your primary complaint is that the courier filed a <strong>Failed Delivery Observation</strong> claiming an attempted delivery on Sunday, May 10th — which is operationally impossible.',
+    issuePills: ['📦 Immediate Delivery', '💰 Compensation', '🔄 Different Courier'],
+    urgency: null,
+    behavior: ['Immediately correct the false information presented', 'Provide specific facts: the exact date, both you and your sister were present', 'Demands are direct and unambiguous'],
+    satisfied: ['Package is delivered successfully', 'An apology is issued for the false delivery claim', 'Compensation is offered for the inconvenience'],
+    frustrated: ['No concrete delivery date is provided', 'The false claim is not acknowledged', 'You are blamed for the failed delivery'],
+    resolution: [
+      { title: 'Option 1 — Immediate Delivery (Next Business Day)', desc: 'Arrange delivery on the next available business day with a different courier.' },
+      { title: 'Option 2 — Compensation', desc: 'Offer compensation or refund for the inconvenience and false delivery claim.' },
+      { title: 'Option 3 — Escalation & Investigation', desc: 'Escalate the false claim to courier management.' }
+    ], builtIn: true
+  },
+  {
+    id: 'missing-item', icon: '📭', title: 'Missing Item', category: 'Fulfillment Error',
+    priority: 'high', difficulty: 'Hard', duration: '20 min',
+    desc: 'Customer received only 1 of 3 ordered items — two items are completely absent.',
+    tags: ['Missing', 'Refund', 'Accountability'],
+    avatar: '👨', customerName: 'Marcus, 35',
+    customerSub: 'Professional · Repeat customer · Values efficiency and accountability',
+    customerTags: ['Direct', 'Evidence-based', 'Cooperative'],
+    orderbar: [
+      { label: 'Items Ordered', value: '3 (Smartwatch, Earbuds, Phone Case)' },
+      { label: 'Items Received', value: '1 (Phone Case only) ❌', red: true },
+      { label: 'Missing Items', value: 'Smartwatch + Earbuds (~$180)', red: true },
+      { label: 'Order Value', value: '$247 total' },
+      { label: 'Order Date', value: 'June 3, 2026' },
+      { label: 'Contact Date', value: 'June 4, 2026' }
+    ],
+    description: 'Marcus, a 35-year-old customer, received a package that was supposed to contain three items. He discovered that he only received <strong>one item — the phone case</strong>.',
+    background: 'Marcus is a <strong>35-year-old professional</strong> who values honesty and efficiency. He is a repeat customer who becomes irritated when he feels dismissed.',
+    issue: 'You ordered three items but only <strong>one item arrived — the phone case</strong>. The smartwatch and wireless earbuds — valued at approximately <strong>$180 combined</strong> — are completely absent.',
+    issuePills: ['🔄 Send Missing Items', '💰 Full Refund (~$180)', '🎁 Partial Refund + Compensation'],
+    urgency: null,
+    behavior: ['Visibly frustrated given the magnitude of missing items', 'Provide documentation (order confirmation, packing slip)', 'Expect accountability without lengthy investigations'],
+    satisfied: ['Receive a prompt, clear acknowledgment of the missing items', 'Given a straightforward resolution', 'Company takes responsibility without excuses'],
+    frustrated: ['Concerns not addressed clearly', 'Asked to search the package again', 'No concrete action or timeline provided'],
+    resolution: [
+      { title: 'Option 1 — Ship Missing Items', desc: 'Immediately ship the missing smartwatch and wireless earbuds with tracking. Provide reference number.' },
+      { title: 'Option 2 — Full Refund (~$180)', desc: "Process refund for the missing items' value (~$180). Timeline: 5–14 business days." },
+      { title: 'Option 3 — Partial Refund + Compensation', desc: 'Offer partial refund for missing items plus a goodwill gesture for the inconvenience.' }
+    ], builtIn: true
+  },
+  {
+    id: 'chargeback', icon: '💳', title: 'Chargeback (Ongoing)', category: 'Payment',
+    priority: 'high', difficulty: 'Hard', duration: '25 min',
+    desc: 'Customer filed a bank dispute; company cannot process refund until chargeback is cancelled.',
+    tags: ['Payment', 'Bank', 'Dispute'],
+    avatar: '👨‍💼', customerName: 'Michael, 35',
+    customerSub: 'Professional · Filed chargeback without contacting support first',
+    customerTags: ['Impatient', 'Confused', 'Wants resolution'],
+    orderbar: [
+      { label: 'Item', value: 'Wireless Headset' },
+      { label: 'Order Value', value: '$94.99' },
+      { label: 'Chargeback Filed', value: 'June 6, 2026' },
+      { label: 'Chargeback Status', value: 'ONGOING ❌', red: true },
+      { label: 'Reason Claimed', value: 'Non-receipt of goods' },
+      { label: 'Contact Date', value: 'June 9, 2026' }
+    ],
+    description: 'Michael placed an order for a wireless headset at <strong>$94.99</strong>. He claims the package never arrived, so he initiated a chargeback dispute directly with his bank. The chargeback is currently <strong>ongoing — still under review</strong>.',
+    background: "Michael is a <strong>35-year-old professional</strong> who took action with his bank without first attempting to resolve the issue through the company's support team.",
+    issue: 'You ordered wireless headsets for <strong>$94.99</strong> and claim the package never arrived. You filed a chargeback with your bank. The chargeback dispute is currently <strong>ongoing — still under review</strong>.',
+    issuePills: ['💰 Refund Request', '🔄 Replacement Request'],
+    urgency: '⚠️ <strong>Important:</strong> The company CANNOT process a refund or replacement while the chargeback is ongoing. Customer must cancel the dispute with their bank first.',
+    behavior: ['Ask for a refund or replacement', 'Confused when company explains they cannot process a refund due to ongoing chargeback', 'Frustrated when told to cancel the chargeback first'],
+    satisfied: ['Company clearly explains that the ongoing chargeback is preventing them from processing a refund', 'Given step-by-step guidance on how to cancel the dispute', 'Assured that once cancelled, they will immediately process a refund'],
+    frustrated: ['Company refuses to help without clearly explaining the chargeback situation', 'No clear instructions on how to cancel the dispute'],
+    resolution: [
+      { title: 'Step 1 — Explain the Chargeback Block', desc: 'Clearly explain that the ongoing chargeback prevents the company from processing any refund or replacement at this time.' },
+      { title: 'Step 2 — Guide Customer to Cancel Dispute', desc: 'Provide step-by-step instructions on how to withdraw/cancel the chargeback with their bank.' },
+      { title: 'Step 3 — Process After Cancellation', desc: 'Once the chargeback is cancelled, immediately process a full refund of $94.99 or send a replacement.' }
+    ], builtIn: true
+  },
+  {
+    id: 'minimum-threshold', icon: '🛒', title: 'Minimum Threshold', category: 'Policy Issue',
+    priority: 'low', difficulty: 'Easy', duration: '10 min',
+    desc: "Customer blocked from checkout because order total doesn't meet the minimum amount.",
+    tags: ['Policy', 'Checkout', 'Threshold'],
+    avatar: '👨‍💻', customerName: 'Thomas, 45',
+    customerSub: 'Professional · Values efficiency · Returning customer · Frustrated by restrictive policies',
+    customerTags: ['Direct', 'Skeptical', 'Policy-critical'],
+    orderbar: [
+      { label: 'Item Wanted', value: 'Replacement Phone Charger' },
+      { label: 'Item Price', value: '$18.00' },
+      { label: 'Minimum Required', value: '$35.00' },
+      { label: 'Shortfall', value: '$17.00 below minimum ❌', red: true },
+      { label: 'Customer Type', value: 'Returning Customer' },
+      { label: 'Contact Date', value: 'June 9, 2026' }
+    ],
+    description: 'Thomas, a 45-year-old customer, attempted to purchase a single item — a replacement phone charger priced at <strong>$18</strong>. When he proceeded to checkout, the system displayed <em>"Minimum $35 to checkout"</em> and blocked him.',
+    background: "Thomas is a <strong>45-year-old professional</strong> who values efficiency and doesn't like being forced to purchase items he doesn't need.",
+    issue: 'You found a phone charger you need for <strong>$18</strong> and tried to complete your purchase. However, the checkout system blocked you with a message stating <em>"Minimum $35 to checkout."</em>',
+    issuePills: ['🔓 Exception to Purchase', '❓ Policy Explanation'],
+    urgency: null,
+    behavior: ['Express frustration about being prevented from completing a legitimate purchase', 'Question the fairness of the minimum threshold policy', 'Ask if exceptions can be made for small purchases'],
+    satisfied: ['Receive a prompt, clear acknowledgment of your concern', 'Given a clear explanation of why the policy exists', 'Offered a practical alternative or workaround'],
+    frustrated: ['Company simply repeats the policy without explanation', 'Told there are no exceptions, regardless of circumstances', 'No alternative solutions are offered'],
+    resolution: [
+      { title: 'Option 1 — Explain the Policy', desc: 'Clearly explain why the minimum threshold exists (logistics, processing costs) and acknowledge the inconvenience.' },
+      { title: 'Option 2 — Suggest Alternatives', desc: 'Suggest adding a low-cost item to meet the threshold, or offer a discount code to bridge the gap.' },
+      { title: 'Option 3 — Escalate for Exception', desc: 'For returning customers, escalate to see if a one-time exception can be made as a goodwill gesture.' }
+    ], builtIn: true
+  },
+  {
+    id: 'logistics-tracking', icon: '📍', title: 'Logistics Tracking Interrupted', category: 'Tracking Issue',
+    priority: 'medium', difficulty: 'Easy', duration: '10 min',
+    desc: 'Package is within delivery window but tracking has not updated for 5+ days.',
+    tags: ['Tracking', 'Delivery', 'Reassurance'],
+    avatar: '👩‍🍳', customerName: 'Rachel, 31',
+    customerSub: 'Professional · Practical · Values communication · Has time-sensitive need',
+    customerTags: ['Patient but anxious', 'Practical', 'Needs reassurance'],
+    orderbar: [
+      { label: 'Order Date', value: 'June 1, 2026' },
+      { label: 'Expected Delivery', value: 'June 10, 2026' },
+      { label: 'Last Tracking Update', value: 'June 4, 2026' },
+      { label: 'Days Without Update', value: '5 Days ⚠️', red: true },
+      { label: 'Order Value', value: '$67.00' },
+      { label: 'Deadline', value: 'June 12 (Dinner Party)' }
+    ],
+    description: 'Rachel, a 31-year-old customer, placed an order on June 1, 2026, for a set of kitchen utensils. The tracking showed activity until June 4, 2026 (in transit), but since then, there have been <strong>no updates for 5 days</strong>.',
+    background: 'Rachel is a <strong>31-year-old professional</strong> who ordered the utensil set for an upcoming dinner party on <strong>June 12, 2026</strong>.',
+    issue: 'You ordered a set of kitchen utensils for <strong>$67</strong> with an expected delivery date of <strong>June 10, 2026</strong>. The tracking last showed activity on June 4 (in transit), but there have been <strong>zero updates for 5 days</strong>.',
+    issuePills: ['📦 Package Status Update', '📅 Delivery Confirmation'],
+    urgency: 'ℹ️ <strong>Resolution Note:</strong> Per policy, if tracking is interrupted for fewer than 15 days and the package is within the delivery window, the recommended action is to reassure the customer and ask them to wait.',
+    behavior: ['Express concern about the lack of tracking updates', 'Explain the time-sensitive nature (dinner party on June 12)', "Ask if there's been any activity on the package at all"],
+    satisfied: ['Receive clear reassurance that the package is on track', 'Company confirms the original delivery date of June 10 is still expected', 'Given a reference number in case you need to follow up'],
+    frustrated: ['Given vague reassurance without confirmation of the delivery date', 'Told to simply "wait and see" without any support'],
+    resolution: [
+      { title: 'Resolution — Reassure and Ask to Wait', desc: 'Explain that tracking gaps are normal during transit. Confirm the June 10 delivery date is still expected.' },
+      { title: 'If Not Delivered by June 10', desc: "If package doesn't arrive by the expected date, offer to investigate further and provide refund or replacement options." }
+    ], builtIn: true
+  },
+  {
+    id: 'payment-failure', icon: '🚫', title: 'Payment Failure', category: 'Payment',
+    priority: 'medium', difficulty: 'Medium', duration: '15 min',
+    desc: "Transaction blocked by payment server — customer unsure if it's their bank or the platform.",
+    tags: ['Payment', 'Transaction', 'Bank'],
+    avatar: '👩‍💻', customerName: 'Jessica, 32',
+    customerSub: 'Freelancer · Tech-savvy · New customer · Confused by vague error message',
+    customerTags: ['Confused', 'Cautious', 'Wants clarity'],
+    orderbar: [
+      { label: 'Item', value: 'Laptop Stand' },
+      { label: 'Order Value', value: '$89.00' },
+      { label: 'Error', value: 'Transaction Blocked ❌', red: true },
+      { label: 'Card Status', value: 'Valid (works elsewhere)' },
+      { label: 'Funds Available', value: 'Yes' },
+      { label: 'Contact Date', value: 'June 9, 2026' }
+    ],
+    description: 'Jessica, a 32-year-old freelancer, attempted to purchase a laptop stand for <strong>$89</strong>. The payment was declined with an error message: <em>"Transaction blocked by payment server — Please contact your bank or try another payment method."</em>',
+    background: 'Jessica is a <strong>32-year-old freelancer</strong> who regularly makes online purchases. She becomes frustrated when the error message is vague.',
+    issue: 'You selected a laptop stand for <strong>$89</strong> and attempted to process the payment. The system displayed an error: <em>"Transaction blocked by payment server."</em> You have sufficient funds, and this card has worked for other online purchases recently.',
+    issuePills: ['❓ Why Was Payment Blocked?', '🔄 How to Retry?', '💳 Alternative Payment?'],
+    urgency: "ℹ️ <strong>Context:</strong> Payment failures can be caused by card issues or risk control (platform's risk team OR the bank's risk team). Both must approve for payment to succeed.",
+    behavior: ['Express confusion about why your payment was declined', 'Mention your card has worked elsewhere and you have sufficient funds', 'Ask for clarification on what "payment server blocked" means'],
+    satisfied: ['Company provides a clear explanation of why the payment was blocked', 'Given specific guidance on next steps (retry, contact bank, use different card)', 'Company offers alternative payment methods if available'],
+    frustrated: ['Company simply repeats the error message without explanation', 'Told "contact your bank" without any additional support', 'No alternative payment methods are offered'],
+    resolution: [
+      { title: 'Option 1 — Try Again / Different Card', desc: "Ask customer to retry with the same card or try a different payment method. Confirm it's safe to retry." },
+      { title: 'Option 2 — Contact Bank', desc: 'Advise customer to contact their bank to check if the transaction was blocked on their end.' },
+      { title: 'Option 3 — Alternative Payment', desc: 'Offer alternative payment methods available on the platform (different card, PayPal, etc.).' }
+    ], builtIn: true
+  },
+  {
+    id: 'refund-delay', icon: '💸', title: 'Refund Amount & Times', category: 'Payment',
+    priority: 'medium', difficulty: 'Easy', duration: '10 min',
+    desc: "Customer hasn't received their card refund 5 days after return was confirmed.",
+    tags: ['Refund', 'Timeline', 'Reassurance'],
+    avatar: '👩‍💼', customerName: 'Patricia, 38',
+    customerSub: 'Professional · Returned item correctly · Depends on debit card for expenses',
+    customerTags: ['Understanding', 'Anxious', 'Needs reassurance'],
+    orderbar: [
+      { label: 'Item Returned', value: 'Pair of Shoes' },
+      { label: 'Refund Amount', value: '$76.50' },
+      { label: 'Return Confirmed', value: 'June 5, 2026' },
+      { label: 'Days Since Return', value: '5 Business Days' },
+      { label: 'Payment Method', value: 'Visa Debit Card' },
+      { label: 'Refund Received', value: 'Not Yet ❌', red: true }
+    ],
+    description: "Patricia initiated a refund request for a pair of shoes. She originally paid <strong>$76.50</strong> using her Visa debit card. The company confirmed the return on <strong>June 5, 2026</strong>. Today is <strong>June 10, 2026</strong> — 5 days after the return was processed — and Patricia still hasn't received the refund.",
+    background: 'Patricia is a <strong>38-year-old professional</strong> who depends on her debit card for regular expenses. She returned the shoes promptly and followed all return procedures correctly.',
+    issue: "You returned a pair of shoes for <strong>$76.50</strong> on June 5, 2026, and the company confirmed your return was received and approved. However, as of June 10, you still haven't received the <strong>$76.50 refund</strong>.",
+    issuePills: ['❓ Where is My Refund?', '📅 When Will It Arrive?'],
+    urgency: "ℹ️ <strong>Policy:</strong> Refunds to card payments are processed within 5–14 business days. The timing depends on the customer's bank, not just the company's processing.",
+    behavior: ['Express concern that 5 days have passed without the refund appearing', 'Ask for a specific date or timeframe for when the refund will arrive', 'Want reassurance that the refund is coming'],
+    satisfied: ['Company confirms the refund was processed and provides a reference number', 'Given a clear timeline: refunds typically take 5–14 business days', 'Reassured that refund is in progress'],
+    frustrated: ['Company cannot confirm whether the refund was actually processed', 'Given vague information like "it should arrive soon"', 'No specific timeline provided'],
+    resolution: [
+      { title: 'Confirm Refund Status', desc: 'Confirm that the refund of $76.50 was processed on June 5. Provide a reference/transaction number.' },
+      { title: 'Explain Timeline', desc: "Inform customer that card refunds take 5–14 business days. Today is day 5, so it's still within the normal window." },
+      { title: 'Advise on Next Steps', desc: "If refund doesn't appear within 14 business days, advise customer to contact their bank and provide the reference number." }
+    ], builtIn: true
+  },
+  {
+    id: 'product-damaged', icon: '💔', title: 'Product Damaged / Quality Issues', category: 'Quality Issue',
+    priority: 'medium', difficulty: 'Medium', duration: '15 min',
+    desc: 'Product has a manufacturing defect preventing normal use.',
+    tags: ['Quality', 'Defect', 'Replacement'],
+    avatar: '🏃', customerName: 'David, 28',
+    customerSub: 'Fitness enthusiast · Outdoor adventurer · Relies on product performance',
+    customerTags: ['Practical', 'Direct', 'Reasonable'],
+    orderbar: [
+      { label: 'Item', value: 'Water Bottle ("Leak-Proof")' },
+      { label: 'Issue', value: "Cap doesn't seal — leaks ❌", red: true },
+      { label: 'Order Value', value: '$45.00' },
+      { label: 'Damage Type', value: 'Manufacturing Defect' },
+      { label: 'Order Date', value: 'June 5, 2026' },
+      { label: 'Contact Date', value: 'June 9, 2026' }
+    ],
+    description: 'David, a 28-year-old customer, purchased a water bottle marketed as <em>"leak-proof, durable stainless steel construction."</em> He discovered the cap has a manufacturing defect that prevents it from sealing properly.',
+    background: 'David is a <strong>28-year-old fitness enthusiast</strong> who relies on his water bottle during gym sessions and outdoor activities.',
+    issue: 'You purchased a water bottle for <strong>$45</strong> that was specifically marketed as <em>"leak-proof."</em> When you fill it and seal the cap, <strong>water leaks from the cap seal</strong>.',
+    issuePills: ['🔄 Replacement', '💰 Full Refund ($45)', '🎁 Compensation'],
+    urgency: null,
+    behavior: ['Frustrated that a new product has a manufacturing defect', "Explain the specific problem clearly (cap doesn't seal, water leaks)", 'Emphasize the bottle is unusable for its intended purpose'],
+    satisfied: ['Receive a clear acknowledgment that this is a manufacturing defect', 'Offered either a replacement with a quality guarantee or a full refund of $45', 'Receive a definite timeline for the resolution'],
+    frustrated: ['Asked to verify how the cap works or explain the leak again', 'Company suggests it might be user error or misuse', 'No concrete resolution is offered'],
+    resolution: [
+      { title: 'Option 1 — Replacement with Quality Guarantee', desc: 'Send a replacement unit with confirmation that quality has been checked. Provide return label for defective bottle.' },
+      { title: 'Option 2 — Full Refund ($45)', desc: 'Process full refund of $45. Issue return label for defective bottle. Timeline: 5–14 business days.' },
+      { title: 'Option 3 — Compensation', desc: 'Offer a goodwill gesture (discount or partial refund) for the inconvenience of receiving a defective product.' }
+    ], builtIn: true
+  },
+  {
+    id: 'inaccurate-website', icon: '🖥️', title: 'Inaccurate Website Description', category: 'Fulfillment Error',
+    priority: 'medium', difficulty: 'Medium', duration: '15 min',
+    desc: "Correct SKU received but product material/specs don't match the website listing.",
+    tags: ['Fulfillment', 'Description', 'Misleading'],
+    avatar: '👩', customerName: 'Maria, 35',
+    customerSub: 'Health-conscious professional · Values material quality and food safety',
+    customerTags: ['Detail-oriented', 'Health-conscious', 'Firm but fair'],
+    orderbar: [
+      { label: 'Item Ordered', value: 'Kitchen Blender (BL-2026-SS)' },
+      { label: 'Website Listed', value: 'Premium Stainless Steel Pitcher' },
+      { label: 'Actual Item', value: 'Plastic Pitcher ❌', red: true },
+      { label: 'Order Value', value: '$189.00' },
+      { label: 'Order Date', value: 'June 3, 2026' },
+      { label: 'Contact Date', value: 'June 8, 2026' }
+    ],
+    description: 'Maria, a 35-year-old customer, purchased a kitchen blender based on the website description which stated <em>"Premium stainless steel pitcher, BPA-free, dishwasher safe."</em> She received the blender and discovered the pitcher is <strong>plastic, not stainless steel</strong> as described.',
+    background: 'Maria is a <strong>35-year-old health-conscious professional</strong> who uses blenders daily for smoothies and meal prep. She specifically chose this model based on the stainless steel and BPA-free description.',
+    issue: 'You purchased a blender for <strong>$189</strong> based on the website description: <em>"Premium stainless steel pitcher, BPA-free, dishwasher safe."</em> The correct SKU was shipped, but the pitcher is <strong>plastic, not stainless steel</strong>.',
+    issuePills: ['💰 Full Refund ($189)', '🔄 Exchange for Correct Model', '💳 Price Adjustment'],
+    urgency: null,
+    behavior: ["Visibly disappointed that the premium material promised isn't there", 'Provide proof (website screenshot showing "stainless steel," order confirmation)', 'Emphasize that material quality is critical for daily use and food safety'],
+    satisfied: ['Receive a prompt, clear acknowledgment of the material discrepancy', 'Given a straightforward resolution (refund, exchange, or price adjustment)', 'Company takes responsibility without excuses'],
+    frustrated: ['Concerns not addressed clearly', 'Company suggests the plastic pitcher is acceptable', 'Offered only one option without alternatives'],
+    resolution: [
+      { title: 'Option 1 — Full Refund ($189)', desc: 'Process full refund of $189 to original payment method. Issue return label. Timeline: 5–14 business days.' },
+      { title: 'Option 2 — Exchange for Stainless Steel Model', desc: 'Ship the actual stainless steel version if available. Issue return label for plastic model.' },
+      { title: 'Option 3 — Price Adjustment', desc: 'Offer a significant price reduction to reflect the actual value of the plastic model received.' }
+    ], builtIn: true
+  },
+  {
+    id: 'defective-product', icon: '🔧', title: 'Defective Product', category: 'Quality Issue',
+    priority: 'high', difficulty: 'Medium', duration: '18 min',
+    desc: 'Customer received a defective product that stops working after 3 days of normal use.',
+    tags: ['Quality', 'Warranty', 'Replacement', 'Defect'],
+    avatar: '👩‍💻', customerName: 'Sarah, 31',
+    customerSub: 'Tech-savvy · Values quality · Frustrated by defect · Needs quick resolution',
+    customerTags: ['Logical', 'Evidence-oriented', 'Wants warranty honored'],
+    orderbar: [
+      { label: 'Product', value: 'Bluetooth Speaker Pro' },
+      { label: 'Order Date', value: 'June 8, 2026' },
+      { label: 'Delivery Date', value: 'June 10, 2026' },
+      { label: 'Issue Discovered', value: 'June 13, 2026 (3 days later)', red: true },
+      { label: 'Problem', value: "Won't charge / Power failure ❌", red: true },
+      { label: 'Product Price', value: '$189.99' }
+    ],
+    description: "Sarah purchased a <strong>Bluetooth Speaker Pro for $189.99</strong> on June 8, 2026. The product arrived on June 10 in perfect condition. However, after just <strong>3 days of normal use</strong>, the speaker stopped charging and won't power on.",
+    background: 'Sarah is a <strong>31-year-old tech professional</strong> who takes good care of her devices. She is <strong>frustrated</strong> because the product failed within days of purchase, well within the warranty period.',
+    issue: 'Your <strong>Bluetooth Speaker Pro ($189.99)</strong> stopped working on June 13, just 3 days after delivery. The device will not charge and will not power on. This is clearly a <strong>manufacturing defect</strong>, not user error.',
+    issuePills: ['🔄 Warranty Replacement', '💰 Full Refund ($189.99)', '🎁 Upgrade Offer'],
+    urgency: "⏰ <strong>Important:</strong> This product is covered under the standard 1-year manufacturer's warranty. The defect occurred well within the warranty period.",
+    behavior: ['You explain the problem clearly and factually', 'You describe how it was used normally (no dropping, water damage, or misuse)', 'You reference the purchase receipt and warranty coverage', 'You express frustration about a premium product failing so quickly'],
+    satisfied: ['The agent immediately acknowledges the manufacturing defect', 'You are offered a replacement or full refund without hesitation', 'The agent provides a prepaid return label for the defective unit', 'A clear timeline is given for when the replacement will arrive'],
+    frustrated: ['The agent asks you to troubleshoot ("Have you tried resetting it?")', 'Your warranty claim is questioned or denied', 'The agent suggests the damage was caused by user error', 'No clear solution or timeline is provided'],
+    resolution: [
+      { title: 'Option 1 — Warranty Replacement', desc: 'Ship a replacement Bluetooth Speaker Pro immediately with expedited shipping. Provide a prepaid return label for the defective unit. Timeline: Replacement arrives within 5-7 business days.' },
+      { title: 'Option 2 — Full Refund', desc: 'Process a full refund of $189.99. Issue a prepaid return label. Timeline: Refund appears in 5-14 business days after return is received.' },
+      { title: 'Option 3 — Upgrade Offer', desc: 'Offer an upgraded model (Bluetooth Speaker Pro Max) at the same price ($189.99) with expedited shipping to make amends for the defective unit.' }
+    ], builtIn: true
+  }
+];
+
+// ===== LOAD / SAVE =====
+async function loadState() {
+  try {
+    const data = await window.db.get('agent_trainer_v3');
+    if (data) {
+      state.agents = data.agents || [];
+      state.assessments = data.assessments || [];
+      const customScenarios = data.customScenarios || [];
+      state.scenarios = [...DEFAULT_SCENARIOS, ...customScenarios];
+    } else {
+      state.scenarios = [...DEFAULT_SCENARIOS];
+    }
+  } catch(e) {
+    state.scenarios = [...DEFAULT_SCENARIOS];
+  }
+  renderAll();
+}
+
+async function saveState() {
+  const customScenarios = state.scenarios.filter(s => !s.builtIn);
+  try {
+    await window.db.set('agent_trainer_v3', {
+      agents: state.agents,
+      assessments: state.assessments,
+      customScenarios
+    });
+  } catch(e) { console.error('Save error:', e); }
+}
+
+// ===== PAGE NAVIGATION =====
+function showPage(pageId, navEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + pageId);
+  if (page) page.classList.add('active');
+  if (navEl) navEl.classList.add('active');
+  state.currentPage = pageId;
+  const titles = { overview: 'Overview', scenarios: 'Scenario Library', agents: 'Agent Management', analytics: 'Training Analytics', assessments: 'Assessment Tracker', leaderboard: 'Leaderboard' };
+  const topbarTitle = document.getElementById('topbarTitle');
+  if (topbarTitle) topbarTitle.textContent = titles[pageId] || pageId;
+  renderAll();
+}
+
+// ===== SHOW ADD MODAL =====
+function showAddModal() {
+  const page = state.currentPage;
+  if (page === 'scenarios') openModal('scenario');
+  else if (page === 'agents') openModal('agent');
+  else if (page === 'assessments') openModal('assessment');
+  else openModal('scenario');
+}
+
+// ===== RENDER ALL =====
+function renderAll() {
+  updateStats();
+  renderScenarios();
+  renderAgents();
+  renderAssessments();
+  renderAnalytics();
+  renderLeaderboard();
+  renderOverviewAssessments();
+  updateFilterDropdowns();
+}
+
+// ===== STATS =====
+function updateStats() {
+  const completed = state.assessments.filter(a => a.status === 'Completed');
+  const avgScore = completed.length > 0 ? Math.round(completed.reduce((s, a) => s + (a.score || 0), 0) / completed.length) : null;
+  const el = (id) => document.getElementById(id);
+  if (el('stat-scenarios')) el('stat-scenarios').textContent = state.scenarios.length;
+  if (el('stat-agents')) el('stat-agents').textContent = state.agents.length;
+  if (el('stat-assessments')) el('stat-assessments').textContent = completed.length;
+  if (el('stat-avg')) el('stat-avg').textContent = avgScore !== null ? avgScore + '%' : '—';
+}
+
+// ===== SCENARIOS =====
+function renderScenarios() {
+  const grid = document.getElementById('scenarioGrid');
+  if (!grid) return;
+  let filtered = state.scenarios.filter(s => {
+    const matchFilter = state.scenarioFilter === 'all' || s.category === state.scenarioFilter;
+    const matchSearch = !state.searchQuery || s.title.toLowerCase().includes(state.searchQuery) || (s.desc || '').toLowerCase().includes(state.searchQuery) || s.category.toLowerCase().includes(state.searchQuery);
+    return matchFilter && matchSearch;
+  });
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">🔍</div><h3>No scenarios found</h3><p>Try a different filter or add a new scenario.</p></div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(s => `
+    <div class="scenario-card">
+      <div class="sc-top">
+        <div class="sc-icon">${s.icon || '📋'}</div>
+        <span class="sc-priority ${s.priority || 'medium'}">${(s.priority || 'medium').charAt(0).toUpperCase() + (s.priority || 'medium').slice(1)} Priority</span>
+      </div>
+      <div class="sc-title">${s.title}</div>
+      <div class="sc-desc">${s.desc || ''}</div>
+      <div class="sc-tags">${(s.tags || []).map(t => `<span class="sc-tag">${t}</span>`).join('')}</div>
+      <div class="sc-meta">
+        <span>⚡ ${s.difficulty || 'Medium'}</span>
+        <span>⏱ ${s.duration || '15 min'}</span>
+        <span>📁 ${s.category}</span>
+      </div>
+      <div class="sc-actions">
+        <button class="sc-btn edit" onclick="openModal('scenario', '${s.id}')">✏️ Edit</button>
+        <button class="sc-btn view" onclick="viewScenario('${s.id}')">👁 View</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterScenarios(tag, btn) {
+  state.scenarioFilter = tag;
+  document.querySelectorAll('#scenarioFilters .filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderScenarios();
+}
+
+function handleSearch(val) {
+  state.searchQuery = val.trim().toLowerCase();
+  if (state.currentPage === 'scenarios') renderScenarios();
+}
+
+// ===== AGENTS =====
+function renderAgents() {
+  const grid = document.getElementById('agentsGrid');
+  if (!grid) return;
+  if (state.agents.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">👥</div><h3>No agents yet</h3><p>Click "Add Agent" to register your first agent.</p></div>`;
+    return;
+  }
+  const colors = ['#6c63ff','#a855f7','#3b82f6','#10b981','#f59e0b','#ef4444','#06b6d4','#8b5cf6'];
+  grid.innerHTML = state.agents.map((agent, i) => {
+    const agentAssessments = state.assessments.filter(a => a.agentId === agent.id && a.status === 'Completed');
+    const avgScore = agentAssessments.length > 0 ? Math.round(agentAssessments.reduce((s, a) => s + (a.score || 0), 0) / agentAssessments.length) : null;
+    const passRate = agentAssessments.length > 0 ? Math.round((agentAssessments.filter(a => (a.score || 0) >= 70).length / agentAssessments.length) * 100) : null;
+    const color = colors[i % colors.length];
+    const initials = agent.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    return `
+      <div class="agent-card">
+        <div class="agent-top">
+          <div class="agent-avatar" style="background:${color}">${initials}</div>
+          <div>
+            <div class="agent-name">${agent.name}</div>
+            <div class="agent-role">${agent.role || 'Agent'} · ${agent.team || 'General'}</div>
+          </div>
+        </div>
+        <div class="agent-stats">
+          <div class="agent-stat"><div class="agent-stat-label">Assessments</div><div class="agent-stat-value blue">${agentAssessments.length}</div></div>
+          <div class="agent-stat"><div class="agent-stat-label">Avg Score</div><div class="agent-stat-value ${avgScore !== null ? (avgScore >= 80 ? 'green' : '') : ''}">${avgScore !== null ? avgScore + '%' : '—'}</div></div>
+          <div class="agent-stat"><div class="agent-stat-label">Pass Rate</div><div class="agent-stat-value purple">${passRate !== null ? passRate + '%' : '—'}</div></div>
+          <div class="agent-stat"><div class="agent-stat-label">Email</div><div style="font-size:10px;color:#666;margin-top:4px;">${agent.email || '—'}</div></div>
+        </div>
+        ${avgScore !== null ? `<div class="progress-bar"><div class="progress-fill" style="width:${avgScore}%"></div></div>` : ''}
+        <div class="agent-actions">
+          <button class="sc-btn edit" style="flex:1" onclick="openModal('agent', '${agent.id}')">✏️ Edit</button>
+          <button class="sc-btn view" style="flex:1" onclick="openModal('agent-detail', '${agent.id}')">📊 Results</button>
+          <button class="btn-danger" style="padding:6px 10px;" onclick="deleteAgent('${agent.id}')">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ===== ASSESSMENTS =====
+function renderAssessments() {
+  const tbody = document.getElementById('assessmentBody');
+  if (!tbody) return;
+  let filtered = [...state.assessments];
+  const agentF = document.getElementById('assessFilterAgent')?.value || 'all';
+  const scenarioF = document.getElementById('assessFilterScenario')?.value || 'all';
+  const statusF = document.getElementById('assessFilterStatus')?.value || 'all';
+  if (agentF !== 'all') filtered = filtered.filter(a => a.agentId === agentF);
+  if (scenarioF !== 'all') filtered = filtered.filter(a => a.scenarioId === scenarioF);
+  if (statusF !== 'all') filtered = filtered.filter(a => a.status === statusF);
+  if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#555;padding:20px;">No assessments found.</td></tr>`; return; }
+  tbody.innerHTML = filtered.sort((a, b) => new Date(b.date) - new Date(a.date)).map(a => {
+    const agent = state.agents.find(ag => ag.id === a.agentId);
+    const scenario = state.scenarios.find(s => s.id === a.scenarioId);
+    const score = a.score;
+    let scoreBadge = (a.status === 'Completed' && score !== null && score !== undefined)
+      ? `<span class="score-badge ${score >= 90 ? 'excellent' : score >= 75 ? 'good' : score >= 60 ? 'average' : 'poor'}">${score}%</span>`
+      : `<span style="color:#555">—</span>`;
+    const statusDot = a.status === 'Completed' ? 'completed' : a.status === 'In Progress' ? 'in-progress' : 'pending';
+    return `<tr>
+      <td><strong style="color:#fff">${agent ? agent.name : 'Unknown'}</strong></td>
+      <td>${scenario ? scenario.title : 'Unknown'}</td>
+      <td>${scoreBadge}</td>
+      <td><span class="status-dot ${statusDot}"></span>${a.status}</td>
+      <td style="color:#666;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.notes || '—'}</td>
+      <td style="color:#666">${a.date || '—'}</td>
+      <td>
+        <button class="sc-btn edit" style="padding:4px 10px;font-size:10px;" onclick="openModal('assessment', '${a.id}')">Edit</button>
+        <button class="btn-danger" style="padding:4px 8px;font-size:10px;margin-left:4px;" onclick="deleteAssessment('${a.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderOverviewAssessments() {
+  const tbody = document.getElementById('overviewAssessmentBody');
+  if (!tbody) return;
+  const recent = [...state.assessments].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+  if (recent.length === 0) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#555;padding:20px;">No assessments recorded yet</td></tr>`; return; }
+  tbody.innerHTML = recent.map(a => {
+    const agent = state.agents.find(ag => ag.id === a.agentId);
+    const scenario = state.scenarios.find(s => s.id === a.scenarioId);
+    const score = a.score;
+    let scoreBadge = (score !== null && score !== undefined && a.status === 'Completed')
+      ? `<span class="score-badge ${score >= 90 ? 'excellent' : score >= 75 ? 'good' : score >= 60 ? 'average' : 'poor'}">${score}%</span>`
+      : `<span style="color:#555">—</span>`;
+    const statusDot = a.status === 'Completed' ? 'completed' : a.status === 'In Progress' ? 'in-progress' : 'pending';
+    return `<tr>
+      <td><strong style="color:#fff">${agent ? agent.name : 'Unknown'}</strong></td>
+      <td>${scenario ? scenario.title : 'Unknown'}</td>
+      <td>${scoreBadge}</td>
+      <td><span class="status-dot ${statusDot}"></span>${a.status}</td>
+      <td style="color:#666">${a.date || '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== ANALYTICS =====
+function renderAnalytics() {
+  const completed = state.assessments.filter(a => a.status ==='Completed');
+  const avgScore = completed.length > 0 ? Math.round(completed.reduce((s, a) => s + (a.score || 0), 0) / completed.length) : null;
+  const passRate = completed.length > 0 ? Math.round((completed.filter(a => (a.score || 0) >= 70).length / completed.length) * 100) : null;
+
+  const anaTotal = document.getElementById('ana-total');
+  const anaCompleted = document.getElementById('ana-completed');
+  const anaAvg = document.getElementById('ana-avg');
+  const anaPass = document.getElementById('ana-pass');
+
+  if (anaTotal) anaTotal.textContent = state.assessments.length;
+  if (anaCompleted) anaCompleted.textContent = completed.length;
+  if (anaAvg) anaAvg.textContent = avgScore !== null ? avgScore + '%' : '—';
+  if (anaPass) anaPass.textContent = passRate !== null ? passRate + '%' : '—';
+
+  const scoreChart = document.getElementById('scoreChart');
+  if (scoreChart) {
+    if (completed.length === 0) {
+      scoreChart.innerHTML = `<div style="color:#555;font-size:12px;text-align:center;padding:40px;">No data yet</div>`;
+    } else {
+      const ranges = [
+        { label: '90-100%', min: 90, max: 100, color: '#34d399' },
+        { label: '75-89%', min: 75, max: 89, color: '#60a5fa' },
+        { label: '60-74%', min: 60, max: 74, color: '#fbbf24' },
+        { label: '0-59%', min: 0, max: 59, color: '#f87171' }
+      ];
+      const maxCount = Math.max(...ranges.map(r => completed.filter(a => a.score >= r.min && a.score <= r.max).length), 1);
+      scoreChart.innerHTML = `
+        <div style="display:flex;align-items:flex-end;gap:16px;height:140px;padding:0 10px;">
+          ${ranges.map(r => {
+            const count = completed.filter(a => a.score >= r.min && a.score <= r.max).length;
+            const h = Math.round((count / maxCount) * 110);
+            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
+              <div style="font-size:11px;color:#ccc;font-weight:700;">${count}</div>
+              <div style="width:100%;height:${h}px;background:${r.color};border-radius:4px 4px 0 0;min-height:4px;"></div>
+              <div style="font-size:9.5px;color:#555;text-align:center;">${r.label}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      `;
+    }
+  }
+
+  const scenarioPerf = document.getElementById('scenarioPerf');
+  if (scenarioPerf) {
+    const scenarioScores = state.scenarios.map(s => {
+      const sAssessments = completed.filter(a => a.scenarioId === s.id);
+      const avg = sAssessments.length > 0 ? Math.round(sAssessments.reduce((sum, a) => sum + (a.score || 0), 0) / sAssessments.length) : null;
+      return { title: s.title, avg, count: sAssessments.length };
+    }).filter(s => s.count > 0).sort((a, b) => (b.avg || 0) - (a.avg || 0));
+
+    if (scenarioScores.length === 0) {
+      scenarioPerf.innerHTML = `<div style="color:#555;font-size:12px;text-align:center;padding:20px;">No data yet</div>`;
+    } else {
+      scenarioPerf.innerHTML = scenarioScores.map(s => `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="font-size:11px;color:#ccc;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.title}</div>
+          <div style="flex:2;background:#1e2030;border-radius:4px;height:8px;overflow:hidden;">
+            <div style="height:100%;width:${s.avg || 0}%;background:linear-gradient(90deg,#6c63ff,#a855f7);border-radius:4px;"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#a78bfa;width:35px;text-align:right;">${s.avg}%</div>
+        </div>
+      `).join('');
+    }
+  }
+
+  const agentPerfBody = document.getElementById('agentPerfBody');
+  if (agentPerfBody) {
+    if (state.agents.length === 0 || completed.length === 0) {
+      agentPerfBody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#555;padding:20px;">No data yet</td></tr>`;
+    } else {
+      const rows = state.agents.map(agent => {
+        const aAssessments = completed.filter(a => a.agentId === agent.id);
+        if (aAssessments.length === 0) return '';
+        const avg = Math.round(aAssessments.reduce((s, a) => s + (a.score || 0), 0) / aAssessments.length);
+        const best = Math.max(...aAssessments.map(a => a.score || 0));
+        const worst = Math.min(...aAssessments.map(a => a.score || 0));
+        const pass = Math.round((aAssessments.filter(a => (a.score || 0) >= 70).length / aAssessments.length) * 100);
+        return `<tr>
+          <td><strong style="color:#fff">${agent.name}</strong></td>
+          <td>${aAssessments.length}</td>
+          <td><span class="score-badge ${avg >= 90 ? 'excellent' : avg >= 75 ? 'good' : avg >= 60 ? 'average' : 'poor'}">${avg}%</span></td>
+          <td style="color:#34d399;font-weight:700;">${best}%</td>
+          <td style="color:#f87171;font-weight:700;">${worst}%</td>
+          <td>${pass}%</td>
+        </tr>`;
+      }).filter(Boolean).join('');
+      agentPerfBody.innerHTML = rows || `<tr><td colspan="6" style="text-align:center;color:#555;padding:20px;">No completed assessments yet</td></tr>`;
+    }
+  }
+
+  renderOverviewChart();
+  renderOverviewLeaderboard();
+}
+
+function renderOverviewChart() {
+  const chart = document.getElementById('overviewChart');
+  if (!chart) return;
+  const completed = state.assessments.filter(a => a.status === 'Completed');
+  if (completed.length === 0) {
+    chart.innerHTML = `<div style="color:#555;font-size:12px;text-align:center;width:100%;">No assessment data yet</div>`;
+    return;
+  }
+  const scenarioData = state.scenarios.map(s => {
+    const sA = completed.filter(a => a.scenarioId === s.id);
+    return { title: s.title.slice(0, 12), avg: sA.length > 0 ? Math.round(sA.reduce((sum, a) => sum + (a.score || 0), 0) / sA.length) : 0 };
+  }).filter(s => s.avg > 0);
+  if (scenarioData.length === 0) {
+    chart.innerHTML = `<div style="color:#555;font-size:12px;text-align:center;width:100%;">No assessment data yet</div>`;
+    return;
+  }
+  const maxVal = Math.max(...scenarioData.map(s => s.avg), 1);
+  chart.style.alignItems = 'flex-end';
+  chart.style.justifyContent = 'space-around';
+  chart.innerHTML = scenarioData.map(s => {
+    const h = Math.round((s.avg / maxVal) * 130);
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;min-width:30px;">
+      <div style="font-size:9px;color:#a78bfa;font-weight:700;">${s.avg}%</div>
+      <div style="width:80%;height:${h}px;background:linear-gradient(180deg,#6c63ff,#a855f7);border-radius:4px 4px 0 0;min-height:4px;"></div>
+      <div style="font-size:8px;color:#555;text-align:center;overflow:hidden;max-width:50px;text-overflow:ellipsis;white-space:nowrap;">${s.title}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderOverviewLeaderboard() {
+  const lb = document.getElementById('overviewLeaderboard');
+  if (!lb) return;
+  const completed = state.assessments.filter(a => a.status === 'Completed');
+  if (state.agents.length === 0 || completed.length === 0) {
+    lb.innerHTML = `<div style="color:#555;font-size:12px;text-align:center;padding:20px;">No agents yet</div>`;
+    return;
+  }
+  const colors = ['#6c63ff','#a855f7','#3b82f6','#10b981','#f59e0b'];
+  const ranked = state.agents.map((agent, i) => {
+    const aA = completed.filter(a => a.agentId === agent.id);
+    const avg = aA.length > 0 ? Math.round(aA.reduce((s, a) => s + (a.score || 0), 0) / aA.length) : 0;
+    return { ...agent, avg, color: colors[i % colors.length] };
+  }).filter(a => a.avg > 0).sort((a, b) => b.avg - a.avg).slice(0, 5);
+
+  if (ranked.length === 0) {
+    lb.innerHTML = `<div style="color:#555;font-size:12px;text-align:center;padding:20px;">No completed assessments</div>`;
+    return;
+  }
+  lb.innerHTML = ranked.map((agent, i) => {
+    const initials = agent.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    return `<div class="lb-item">
+      <div class="lb-rank">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</div>
+      <div class="lb-avatar" style="background:${agent.color}">${initials}</div>
+      <div class="lb-name">${agent.name}</div>
+      <div class="lb-score">${agent.avg}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderLeaderboard() {
+  const tbody = document.getElementById('leaderboardBody');
+  if (!tbody) return;
+  const completed = state.assessments.filter(a => a.status === 'Completed');
+  if (state.agents.length === 0 || completed.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#555;padding:20px;">No data yet</td></tr>`;
+    return;
+  }
+  const ranked = state.agents.map(agent => {
+    const aA = completed.filter(a => a.agentId === agent.id);
+    const avg = aA.length > 0 ? Math.round(aA.reduce((s, a) => s + (a.score || 0), 0) / aA.length) : 0;
+    const best = aA.length > 0 ? Math.max(...aA.map(a => a.score || 0)) : 0;
+    const pass = aA.length > 0 ? Math.round((aA.filter(a => (a.score || 0) >= 70).length / aA.length) * 100) : 0;
+    return { ...agent, avg, best, pass, count: aA.length };
+  }).filter(a => a.count > 0).sort((a, b) => b.avg - a.avg);
+
+  if (ranked.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#555;padding:20px;">No completed assessments yet</td></tr>`;
+    return;
+  }
+  const medals = ['🥇', '🥈', '🥉'];
+  tbody.innerHTML = ranked.map((agent, i) => `
+    <tr>
+      <td style="font-size:16px;">${medals[i] || (i + 1)}</td>
+      <td><strong style="color:#fff">${agent.name}</strong><br><span style="font-size:10px;color:#666">${agent.role || 'Agent'}</span></td>
+      <td>${agent.count}</td>
+      <td><span class="score-badge ${agent.avg >= 90 ? 'excellent' : agent.avg >= 75 ? 'good' : agent.avg >= 60 ? 'average' : 'poor'}">${agent.avg}%</span></td>
+      <td style="color:#34d399;font-weight:700;">${agent.best}%</td>
+      <td>${agent.pass}%</td>
+    </tr>
+  `).join('');
+}
+
+// ===== MODAL SYSTEM =====
+let currentModalType = null;
+
+function showAddModal() {
+  const page = state.currentPage;
+  if (page === 'scenarios') openModal('scenario');
+  else if (page === 'agents') openModal('agent');
+  else if (page === 'assessments') openModal('assessment');
+  else openModal('scenario');
+}
+
+function openModal(type, editId = null) {
+  currentModalType = type;
+  state.editingId = editId;
+  const modal = document.getElementById('mainModal');
+  const title = document.getElementById('modalTitle');
+  const body = document.getElementById('modalBody');
+  if (!modal || !title || !body) return;
+
+  if (type === 'scenario') {
+    const s = editId ? state.scenarios.find(x => x.id === editId) : null;
+    title.textContent = editId ? 'Edit Scenario' : 'Add New Scenario';
+    body.innerHTML = `
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Icon (emoji)</label>
+          <input class="form-input" id="f-icon" value="${s?.icon || '📋'}" placeholder="📋">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select class="form-select" id="f-priority">
+            <option value="high" ${s?.priority === 'high' ? 'selected' : ''}>High</option>
+            <option value="medium" ${(!s || s?.priority === 'medium') ? 'selected' : ''}>Medium</option>
+            <option value="low" ${s?.priority === 'low' ? 'selected' : ''}>Low</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Title *</label>
+        <input class="form-input" id="f-title" value="${s?.title || ''}" placeholder="e.g. Wrong Item Received">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          <select class="form-select" id="f-category">
+            <option value="Fulfillment Error" ${s?.category === 'Fulfillment Error' ? 'selected' : ''}>Fulfillment Error</option>
+            <option value="Delivery Issue" ${s?.category === 'Delivery Issue' ? 'selected' : ''}>Delivery Issue</option>
+            <option value="Quality Issue" ${s?.category === 'Quality Issue' ? 'selected' : ''}>Quality Issue</option>
+            <option value="Payment" ${s?.category === 'Payment' ? 'selected' : ''}>Payment</option>
+            <option value="Policy Issue" ${s?.category === 'Policy Issue' ? 'selected' : ''}>Policy Issue</option>
+            <option value="Tracking Issue" ${s?.category === 'Tracking Issue' ? 'selected' : ''}>Tracking Issue</option>
+            <option value="Other" ${s?.category === 'Other' ? 'selected' : ''}>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Difficulty</label>
+          <select class="form-select" id="f-difficulty">
+            <option value="Easy" ${s?.difficulty === 'Easy' ? 'selected' : ''}>Easy</option>
+            <option value="Medium" ${(!s || s?.difficulty === 'Medium') ? 'selected' : ''}>Medium</option>
+            <option value="Hard" ${s?.difficulty === 'Hard' ? 'selected' : ''}>Hard</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Duration</label>
+          <input class="form-input" id="f-duration" value="${s?.duration || '15 min'}" placeholder="15 min">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags (comma separated)</label>
+          <input class="form-input" id="f-tags" value="${(s?.tags || []).join(', ')}" placeholder="Refund, Exchange">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Short Description *</label>
+        <input class="form-input" id="f-desc" value="${s?.desc || ''}" placeholder="Brief description of the scenario">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Customer Name & Age</label>
+        <input class="form-input" id="f-custname" value="${s?.customerName || ''}" placeholder="e.g. Amanda, 28">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Customer Sub-info</label>
+        <input class="form-input" id="f-custsub" value="${s?.customerSub || ''}" placeholder="e.g. Avid runner · First-time buyer">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Customer Tags (comma separated)</label>
+        <input class="form-input" id="f-custtags" value="${(s?.customerTags || []).join(', ')}" placeholder="Detail-oriented, Time-sensitive">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Full Description</label>
+        <textarea class="form-textarea" id="f-fulldesc" placeholder="Full scenario description...">${s?.description || ''}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Customer Background</label>
+        <textarea class="form-textarea" id="f-background" placeholder="Customer background information...">${s?.background || ''}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Issue Description</label>
+        <textarea class="form-textarea" id="f-issue" placeholder="Describe the customer's issue...">${s?.issue || ''}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Resolution Options (one per line: Title: Description)</label>
+        <textarea class="form-textarea" style="min-height:100px;" id="f-resolution" placeholder="Option 1: Description&#10;Option 2: Description">${(s?.resolution || []).map(r => r.title + ': ' + r.desc).join('\n')}</textarea>
+      </div>
+      ${editId && !s?.builtIn ? `<div style="margin-top:8px;"><button class="btn-danger" onclick="deleteScenario('${editId}');closeModal();">🗑 Delete Scenario</button></div>` : ''}
+    `;
+  } else if (type === 'agent') {
+    const a = editId ? state.agents.find(x => x.id === editId) : null;
+    title.textContent = editId ? 'Edit Agent' : 'Add New Agent';
+    body.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Full Name *</label>
+        <input class="form-input" id="f-name" value="${a?.name || ''}" placeholder="e.g. John Smith">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Role</label>
+          <input class="form-input" id="f-role" value="${a?.role || ''}" placeholder="e.g. Customer Service Agent">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Team</label>
+          <input class="form-input" id="f-team" value="${a?.team || ''}" placeholder="e.g. Support Team A">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="f-email" value="${a?.email || ''}" placeholder="agent@company.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-textarea" id="f-notes" placeholder="Additional notes about this agent...">${a?.notes || ''}</textarea>
+      </div>
+      ${editId ? `<div style="margin-top:8px;"><button class="btn-danger" onclick="deleteAgent('${editId}');closeModal();">🗑 Delete Agent</button></div>` : ''}
+    `;
+  } else if (type === 'assessment') {
+    const a = editId ? state.assessments.find(x => x.id === editId) : null;
+    title.textContent = editId ? 'Edit Assessment' : 'Log Assessment';
+    body.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Agent *</label>
+        <select class="form-select" id="f-agent">
+          <option value="">Select Agent...</option>
+          ${state.agents.map(ag => `<option value="${ag.id}" ${a?.agentId === ag.id ? 'selected' : ''}>${ag.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Scenario *</label>
+        <select class="form-select" id="f-scenario">
+          <option value="">Select Scenario...</option>
+          ${state.scenarios.map(s => `<option value="${s.id}" ${a?.scenarioId === s.id ? 'selected' : ''}>${s.title}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Score (0-100)</label>
+          <input class="form-input" id="f-score" type="number" min="0" max="100" value="${a?.score ?? ''}" placeholder="85">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="f-status">
+            <option value="Completed" ${(!a || a?.status === 'Completed') ? 'selected' : ''}>Completed</option>
+            <option value="In Progress" ${a?.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+            <option value="Pending" ${a?.status === 'Pending' ? 'selected' : ''}>Pending</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input class="form-input" id="f-date" type="date" value="${a?.date || new Date().toISOString().split('T')[0]}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes / Feedback</label>
+        <textarea class="form-textarea" id="f-anotes" placeholder="Feedback on agent performance...">${a?.notes || ''}</textarea>
+      </div>
+      ${editId ? `<div style="margin-top:8px;"><button class="btn-danger" onclick="deleteAssessment('${editId}');closeModal();">🗑 Delete Assessment</button></div>` : ''}
+    `;
+  } else if (type === 'agent-detail') {
+    const agent = state.agents.find(x => x.id === editId);
+    if (!agent) return;
+    const agentAssessments = state.assessments.filter(a => a.agentId === editId && a.status === 'Completed');
+    title.textContent = `${agent.name} — Assessment History`;
+    body.innerHTML = agentAssessments.length === 0
+      ? '<p style="color:#666;text-align:center;padding:20px;">No completed assessments yet.</p>'
+      : `<table class="assessment-table">
+          <thead><tr><th>Scenario</th><th>Score</th><th>Date</th><th>Notes</th></tr></thead>
+          <tbody>
+            ${[...agentAssessments].sort((a, b) => new Date(b.date) - new Date(a.date)).map(a => {
+              const scenario = state.scenarios.find(s => s.id === a.scenarioId);
+              const cls = (a.score || 0) >= 90 ? 'excellent' : (a.score || 0) >= 75 ? 'good' : (a.score || 0) >= 60 ? 'average' : 'poor';
+              return `<tr>
+                <td>${scenario ? scenario.title : 'Unknown'}</td>
+                <td><span class="score-badge ${cls}">${a.score}%</span></td>
+                <td style="color:#666">${a.date}</td>
+                <td style="color:#666;font-size:11px;">${a.notes || '—'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+  }
+
+  modal.classList.add('open');
+}
+
+function closeModal() {
+  const modal = document.getElementById('mainModal');
+  if (modal) modal.classList.remove('open');
+  currentModalType = null;
+  state.editingId = null;
+}
+
+function saveModal() {
+  if (currentModalType === 'scenario') saveScenario();
+  else if (currentModalType === 'agent') saveAgent();
+  else if (currentModalType === 'assessment') saveAssessment();
+  else closeModal();
+}
+
+function saveScenario() {
+  const titleEl = document.getElementById('f-title');
+  const descEl = document.getElementById('f-desc');
+  const title = titleEl?.value.trim();
+  const desc = descEl?.value.trim();
+  if (!title || !desc) { showToast('Please fill in required fields (Title, Description)', 'error'); return; }
+
+  const resText = document.getElementById('f-resolution')?.value.trim() || '';
+  const resolution = resText.split('\n').filter(Boolean).map(line => {
+    const colonIdx = line.indexOf(':');
+    if (colonIdx > -1) return { title: line.slice(0, colonIdx).trim(), desc: line.slice(colonIdx + 1).trim() };
+    return { title: line, desc: '' };
+  });
+
+  const scenario = {
+    id: state.editingId || 'sc-' + Date.now(),
+    icon: document.getElementById('f-icon')?.value || '📋',
+    title, desc,
+    category: document.getElementById('f-category')?.value || 'Other',
+    priority: document.getElementById('f-priority')?.value || 'medium',
+    difficulty: document.getElementById('f-difficulty')?.value || 'Medium',
+    duration: document.getElementById('f-duration')?.value || '15 min',
+    tags: (document.getElementById('f-tags')?.value || '').split(',').map(t => t.trim()).filter(Boolean),
+    customerName: document.getElementById('f-custname')?.value || '',
+    customerSub: document.getElementById('f-custsub')?.value || '',
+    customerTags: (document.getElementById('f-custtags')?.value || '').split(',').map(t => t.trim()).filter(Boolean),
+    description: document.getElementById('f-fulldesc')?.value || '',
+    background: document.getElementById('f-background')?.value || '',
+    issue: document.getElementById('f-issue')?.value || '',
+    resolution
+  };
+
+  if (state.editingId) {
+    const idx = state.scenarios.findIndex(s => s.id === state.editingId);
+    if (idx > -1) state.scenarios[idx] = { ...state.scenarios[idx], ...scenario };
+  } else {
+    state.scenarios.push(scenario);
+  }
+
+  saveState();
+  renderAll();
+  closeModal();
+  showToast(state.editingId ? 'Scenario updated!' : 'Scenario added!', 'success');
+}
+
+function saveAgent() {
+  const name = document.getElementById('f-name')?.value.trim();
+  if (!name) { showToast('Please enter agent name', 'error'); return; }
+
+  const agent = {
+    id: state.editingId || 'ag-' + Date.now(),
+    name,
+    role: document.getElementById('f-role')?.value || '',
+    team: document.getElementById('f-team')?.value || '',
+    email: document.getElementById('f-email')?.value || '',
+    notes: document.getElementById('f-notes')?.value || ''
+  };
+
+  if (state.editingId) {
+    const idx = state.agents.findIndex(a => a.id === state.editingId);
+    if (idx > -1) state.agents[idx] = agent;
+  } else {
+    state.agents.push(agent);
+  }
+
+  saveState();
+  renderAll();
+  closeModal();
+  showToast(state.editingId ? 'Agent updated!' : 'Agent added!', 'success');
+}
+
+function saveAssessment() {
+  const agentId = document.getElementById('f-agent')?.value;
+  const scenarioId = document.getElementById('f-scenario')?.value;
+  if (!agentId || !scenarioId) { showToast('Please select agent and scenario', 'error'); return; }
+
+  const scoreVal = document.getElementById('f-score')?.value;
+  const assessment = {
+    id: state.editingId || 'as-' + Date.now(),
+    agentId, scenarioId,
+    score: scoreVal !== '' ? parseInt(scoreVal) : null,
+    status: document.getElementById('f-status')?.value || 'Completed',
+    date: document.getElementById('f-date')?.value || new Date().toISOString().split('T')[0],
+    notes: document.getElementById('f-anotes')?.value || ''
+  };
+
+  if (state.editingId) {
+    const idx = state.assessments.findIndex(a => a.id === state.editingId);
+    if (idx > -1) state.assessments[idx] = assessment;
+  } else {
+    state.assessments.push(assessment);
+  }
+
+  saveState();
+  renderAll();
+  closeModal();
+  showToast(state.editingId ? 'Assessment updated!' : 'Assessment logged!', 'success');
+}
+
+function editScenario(id) { openModal('scenario', id); }
+function editAgent(id) { openModal('agent', id); }
+function editAssessment(id) { openModal('assessment', id); }
+
+function deleteScenario(id) {
+  if (state.scenarios.find(s => s.id === id)?.builtIn) { showToast('Cannot delete built-in scenarios', 'error'); return; }
+  state.scenarios = state.scenarios.filter(s => s.id !== id);
+  saveState(); renderAll();
+  showToast('Scenario deleted', 'success');
+}
+
+function deleteAgent(id) {
+  state.agents = state.agents.filter(a => a.id !== id);
+  saveState(); renderAll();
+  showToast('Agent deleted', 'success');
+}
+
+function deleteAssessment(id) {
+  state.assessments = state.assessments.filter(a => a.id !== id);
+  saveState(); renderAll();
+  showToast('Assessment deleted', 'success');
+}
+
+// ===== SCENARIO VIEW =====
+function viewScenario(id) {
+  const s = state.scenarios.find(x => x.id === id);
+  if (!s) return;
+
+  const svOverlay = document.getElementById('svOverlay');
+  if (!svOverlay) return;
+
+  document.getElementById('svTitle').textContent = (s.icon || '') + ' ' + s.title;
+  document.getElementById('svSub').textContent = s.category + ' · ' + (s.difficulty || 'Medium') + ' · ' + (s.duration || '15 min');
+
+  const orderbarHtml = (s.orderbar || []).map(o => `
+    <div class="sv-ob-item">
+      <div class="sv-ob-label">${o.label}</div>
+      <div class="sv-ob-value ${o.red ? 'red' : ''}">${o.value}</div>
+    </div>
+  `).join('');
+
+  const pillsHtml = (s.issuePills || []).length > 0
+    ? `<div class="res-pills">${s.issuePills.map(p => `<span class="res-pill">${p}</span>`).join('')}</div>` : '';
+  const urgencyHtml = s.urgency ? `<div class="urgency-box">${s.urgency}</div>` : '';
+
+  document.getElementById('svContentWrap').innerHTML = `
+    ${s.customerName ? `
+    <div class="sv-profile">
+      <div class="sv-profile-avatar">${s.avatar || '👤'}</div>
+      <div>
+        <div class="sv-profile-name">${s.customerName}</div>
+        <div class="sv-profile-sub">${s.customerSub || ''}</div>
+      </div>
+      <div class="sv-profile-tags">${(s.customerTags || []).map(t => `<span class="sv-profile-tag">${t}</span>`).join('')}</div>
+    </div>` : ''}
+
+    ${orderbarHtml ? `<div class="sv-orderbar">${orderbarHtml}</div>` : ''}
+
+    <div class="sv-tabs" id="svTabNav">
+      <button class="sv-tab active" onclick="svShowTab('all', this)">All Sections</button>
+      <button class="sv-tab" onclick="svShowTab('description', this)">📄 Description</button>
+      <button class="sv-tab" onclick="svShowTab('background', this)">👤 Background</button>
+      <button class="sv-tab" onclick="svShowTab('issue', this)">⚠️ Issue</button>
+      <button class="sv-tab" onclick="svShowTab('behavior', this)">🎭 Behavior</button>
+      <button class="sv-tab" onclick="svShowTab('satisfaction', this)">📊 Satisfaction</button>
+      <button class="sv-tab" onclick="svShowTab('resolution', this)">✅ Resolution</button>
+    </div>
+
+    <div id="svSections">
+      ${s.description ? `<div class="sv-section desc" data-section="description">
+        <div class="sv-section-header">📄 Description</div>
+        <div class="sv-section-body">${s.description}</div>
+      </div>` : ''}
+
+      <div class="sv-two-col" data-section="two-col">
+        ${s.background ? `<div class="sv-section bg" data-section="background">
+          <div class="sv-section-header">👤 Background Information</div>
+          <div class="sv-section-body">${s.background}</div>
+        </div>` : ''}
+        ${s.issue ? `<div class="sv-section issue" data-section="issue">
+          <div class="sv-section-header">⚠️ Issue Description</div>
+          <div class="sv-section-body">
+            ${s.issue}
+            ${pillsHtml}
+            ${urgencyHtml}
+          </div>
+        </div>` : ''}
+      </div>
+
+      ${(s.behavior || []).length > 0 ? `<div class="sv-section behavior" data-section="behavior">
+        <div class="sv-section-header">🎭 How Does the Customer Behave and React?</div>
+        <div class="sv-section-body">
+          <ul class="blist">${s.behavior.map(b => `<li>${b}</li>`).join('')}</ul>
+        </div>
+      </div>` : ''}
+
+      ${(s.satisfied || s.frustrated) ? `<div class="sv-section sat" data-section="satisfaction">
+        <div class="sv-section-header">📊 When Is the Customer Satisfied or Frustrated?</div>
+        <div class="sat-split">
+          <div class="sat-col">
+            <div class="sat-col-title green">✅ Satisfied When:</div>
+            <ul class="blist check">${(s.satisfied || []).map(i => `<li>${i}</li>`).join('')}</ul>
+          </div>
+          <div class="sat-col">
+            <div class="sat-col-title red">❌ Frustrated When:</div>
+            <ul class="blist cross">${(s.frustrated || []).map(i => `<li>${i}</li>`).join('')}</ul>
+          </div>
+        </div>
+      </div>` : ''}
+
+      ${(s.resolution || []).length > 0 ? `<div class="sv-section res" data-section="resolution">
+        <div class="sv-section-header">✅ Resolution Options for Agent</div>
+        <div class="sv-section-body">
+          ${s.resolution.map(r => `<div class="res-option">
+            <div class="res-option-title">${r.title}</div>
+            <div class="res-option-desc">${r.desc}</div>
+          </div>`).join('')}
+        </div>
+      </div>` : ''}
+    </div>
+  `;
+
+  svOverlay.classList.add('open');
+  svOverlay.scrollTop = 0;
+}
+
+function svShowTab(section, btn) {
+  document.querySelectorAll('#svTabNav .sv-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const sections = document.querySelectorAll('#svSections .sv-section');
+  const twoCol = document.querySelector('#svSections .sv-two-col');
+
+  if (section === 'all') {
+    sections.forEach(c => { c.style.display = ''; c.style.gridColumn = ''; });
+    if (twoCol) twoCol.style.display = 'grid';
+    return;
+  }
+
+  if (section === 'background' || section === 'issue') {
+    sections.forEach(c => c.style.display = 'none');
+    if (twoCol) { twoCol.style.display = 'grid'; }
+    twoCol && twoCol.querySelectorAll('.sv-section').forEach(c => {
+      c.style.display = c.dataset.section === section ? '' : 'none';
+      c.style.gridColumn = '1 / -1';
+    });
+  } else {
+    if (twoCol) twoCol.style.display = 'none';
+    sections.forEach(c => {
+      if (c.closest('.sv-two-col')) return;
+      c.style.display = c.dataset.section === section ? '' : 'none';
+    });
+  }
+}
+
+function closeSvOverlay() {
+  const svOverlay = document.getElementById('svOverlay');
+  if (svOverlay) svOverlay.classList.remove('open');
+}
+
+function viewAgentDetail(agentId) {
+  openModal('agent-detail', agentId);
+}
+
+// ===== PAGE NAVIGATION =====
+function showPage(pageId, navEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  const page = document.getElementById('page-' + pageId);
+  if (page) page.classList.add('active');
+  if (navEl) navEl.classList.add('active');
+
+  state.currentPage = pageId;
+
+  const titles = {
+    overview: 'Overview',
+    scenarios: 'Scenario Library',
+    agents: 'Agent Management',
+    analytics: 'Training Analytics',
+    assessments: 'Assessment Tracker',
+    leaderboard: 'Leaderboard'
+  };
+  const topbarTitle = document.getElementById('topbarTitle');
+  if (topbarTitle) topbarTitle.textContent = titles[pageId] || pageId;
+
+  renderAll();
+}
+
+// ===== SEARCH =====
+function handleSearch(val) {
+  state.searchQuery = val.trim().toLowerCase();
+  if (state.currentPage === 'scenarios') renderScenarios();
+}
+
+// ===== FILTER DROPDOWNS =====
+function updateFilterDropdowns() {
+  const agentSelect = document.getElementById('assessFilterAgent');
+  const scenarioSelect = document.getElementById('assessFilterScenario');
+
+  if (agentSelect) {
+    const currentVal = agentSelect.value;
+    agentSelect.innerHTML = '<option value="all">All Agents</option>' +
+      state.agents.map(a => `<option value="${a.id}" ${currentVal === a.id ? 'selected' : ''}>${a.name}</option>`).join('');
+  }
+
+  if (scenarioSelect) {
+    const currentVal = scenarioSelect.value;
+    scenarioSelect.innerHTML = '<option value="all">All Scenarios</option>' +
+      state.scenarios.map(s => `<option value="${s.id}" ${currentVal === s.id ? 'selected' : ''}>${s.title}</option>`).join('');
+  }
+}
+
+// ===== TOAST =====
+function showToast(msg, type = '') {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = (type === 'success' ? '✅ ' : type === 'error' ? '❌ ' : '') + msg;
+  toast.className = `toast show ${type}`;
+  setTimeout(() => { toast.className = 'toast'; }, 3000);
+}
+
+// ===== LOAD / SAVE =====
+async function loadState() {
+  try {
+    const data = await window.db.get('agent_trainer_v3');
+    if (data) {
+      state.agents = data.agents || [];
+      state.assessments = data.assessments || [];
+      const customScenarios = data.customScenarios || [];
+      state.scenarios = [...DEFAULT_SCENARIOS, ...customScenarios];
+    } else {
+      state.scenarios = [...DEFAULT_SCENARIOS];
+    }
+  } catch(e) {
+    state.scenarios = [...DEFAULT_SCENARIOS];
+  }
+  renderAll();
+}
+
+async function saveState() {
+  const customScenarios = state.scenarios.filter(s => !s.builtIn);
+  try {
+    await window.db.set('agent_trainer_v3', {
+      agents: state.agents,
+      assessments: state.assessments,
+      customScenarios
+    });
+  } catch(e) { console.error('Save error:', e); }
+}
+
+// ===== INIT =====
+loadState();
+</script>
+</body>
+</html>
+
